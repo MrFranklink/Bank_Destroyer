@@ -1,0 +1,108 @@
+﻿@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/Template.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
+        <div class="col-md-5">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-bank2"></i> Banking System
+                    </h3>
+                    <p class="mb-0 mt-2">Sign in to your account</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Error
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" action="@Url.Action("Login", "Auth")">
+                        <div class="mb-4">
+                            <label for="Username" class="form-label fw-bold">
+                                <i class="bi bi-person-fill"></i> Username
+                            </label>
+                            <input id="Username"
+                                   name="id"
+                                   class="form-control form-control-lg"
+                                   placeholder="Enter your username"
+                                   required
+                                   autofocus />
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="Password" class="form-label fw-bold">
+                                <i class="bi bi-lock-fill"></i> Password
+                            </label>
+                            <input id="Password"
+                                   name="password"
+                                   class="form-control form-control-lg"
+                                   type="password"
+                                   placeholder="Enter your password"
+                                   required />
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">
+                                Remember me
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </button>
+
+                        <div class="text-center">
+                            <a href="#" class="text-decoration-none">Forgot Password?</a>
+                        </div>
+                    </form>
+                </div>
+                @*<div class="card-footer text-center py-3 bg-light">
+                    <small class="text-muted">
+                        Don't have an account?
+                        <a href="@Url.Action("Register", "Auth")" class="fw-bold text-decoration-none">Register here</a>
+                    </small>
+                </div>*@
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: transform 0.2s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+</style>

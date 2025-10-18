@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bank_App", "Bank_App\Bank_App.csproj", "{166448DC-444B-4039-9B30-5DE09F3D22C7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DB", "DB\DB.csproj", "{4B40E200-8FDD-4DDF-85E4-86115F0F9307}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BankApp.Services", "BankApp.Services\BankApp.Services.csproj", "{4DF11FE7-ADBC-41CA-B64D-0605F3C62D1F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{166448DC-444B-4039-9B30-5DE09F3D22C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{166448DC-444B-4039-9B30-5DE09F3D22C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{166448DC-444B-4039-9B30-5DE09F3D22C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{166448DC-444B-4039-9B30-5DE09F3D22C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B40E200-8FDD-4DDF-85E4-86115F0F9307}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B40E200-8FDD-4DDF-85E4-86115F0F9307}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B40E200-8FDD-4DDF-85E4-86115F0F9307}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B40E200-8FDD-4DDF-85E4-86115F0F9307}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DF11FE7-ADBC-41CA-B64D-0605F3C62D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DF11FE7-ADBC-41CA-B64D-0605F3C62D1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DF11FE7-ADBC-41CA-B64D-0605F3C62D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DF11FE7-ADBC-41CA-B64D-0605F3C62D1F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E751C95F-2C67-46A9-A5F3-ED35085B723B}
+	EndGlobalSection
+EndGlobal

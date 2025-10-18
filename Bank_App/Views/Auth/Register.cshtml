@@ -1,0 +1,179 @@
+@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/Template.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 90vh; padding: 40px 0;">
+        <div class="col-md-7">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus-fill"></i> Create New Account
+                    </h3>
+                    <p class="mb-0 mt-2">Join our Banking System</p>
+                </div>
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Error
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" action="@Url.Action("Register", "Auth")" id="registerForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="UserId" class="form-label fw-bold">
+                                    <i class="bi bi-card-text"></i> User ID *
+                                </label>
+                                <input id="UserId"
+                                       name="userId"
+                                       class="form-control"
+                                       placeholder="e.g., U001"
+                                       maxlength="20"
+                                       required
+                                       autofocus />
+                                <small class="text-muted">Unique identifier (max 20 characters)</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="UserName" class="form-label fw-bold">
+                                    <i class="bi bi-person-fill"></i> Username *
+                                </label>
+                                <input id="UserName"
+                                       name="userName"
+                                       class="form-control"
+                                       placeholder="Enter username"
+                                       maxlength="50"
+                                       required />
+                                <small class="text-muted">Must be unique (max 50 characters)</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Password" class="form-label fw-bold">
+                                    <i class="bi bi-lock-fill"></i> Password *
+                                </label>
+                                <input id="Password"
+                                       name="password"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Enter password"
+                                       minlength="6"
+                                       required />
+                                <small class="text-muted">Minimum 6 characters</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="ConfirmPassword" class="form-label fw-bold">
+                                    <i class="bi bi-lock-fill"></i> Confirm Password *
+                                </label>
+                                <input id="ConfirmPassword"
+                                       name="confirmPassword"
+                                       class="form-control"
+                                       type="password"
+                                       placeholder="Re-enter password"
+                                       minlength="6"
+                                       required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="Role" class="form-label fw-bold">
+                                    <i class="bi bi-shield-fill"></i> Role *
+                                </label>
+                                <select id="Role" name="role" class="form-select" required>
+                                    <option value="">-- Select Role --</option>
+                                    <option value="CUSTOMER">Customer</option>
+                                    <option value="EMPLOYEE">Employee</option>
+                                    <option value="MANAGER">Manager</option>
+                                </select>
+                                <small class="text-muted">Select your account type</small>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="ReferenceId" class="form-label fw-bold">
+                                    <i class="bi bi-link-45deg"></i> Reference ID
+                                </label>
+                                <input id="ReferenceId"
+                                       name="referenceId"
+                                       class="form-control"
+                                       placeholder="e.g., C001, E001, M001"
+                                       maxlength="8" />
+                                <small class="text-muted">Customer/Employee/Manager ID (optional)</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="bi bi-check-circle-fill"></i> Create Account
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-center py-3 bg-light">
+                    <small class="text-muted">
+                        Already have an account?
+                        <a href="@Url.Action("Login", "Auth")" class="fw-bold text-decoration-none">Sign in here</a>
+                    </small>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #11998e;
+        box-shadow: 0 0 0 0.2rem rgba(17, 153, 142, 0.25);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+        transition: transform 0.2s;
+    }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+</style>
+
+<script>
+    // Password match validation
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+        var password = document.getElementById('Password').value;
+        var confirmPassword = document.getElementById('ConfirmPassword').value;
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+            return false;
+        }
+    });
+</script>

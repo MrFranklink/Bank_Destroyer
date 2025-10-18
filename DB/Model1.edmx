@@ -1,0 +1,850 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Banking_DetailsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Account">
+          <Key>
+            <PropertyRef Name="AccountID" />
+          </Key>
+          <Property Name="AccountID" Type="char" MaxLength="7" Nullable="false" />
+          <Property Name="AccountType" Type="varchar" MaxLength="15" />
+          <Property Name="CustomerID" Type="char" MaxLength="8" />
+          <Property Name="OpenedBy" Type="varchar" MaxLength="20" />
+          <Property Name="OpenedByRole" Type="varchar" MaxLength="10" />
+          <Property Name="OpenDate" Type="date" Nullable="false" />
+          <Property Name="Status" Type="varchar" MaxLength="10" />
+          <Property Name="ClosedDate" Type="date" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Custid" />
+          </Key>
+          <Property Name="Custid" Type="char" MaxLength="8" Nullable="false" />
+          <Property Name="Custname" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="DOB" Type="date" />
+          <Property Name="Pan" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="Address" Type="varchar" MaxLength="100" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="15" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Deptid" />
+          </Key>
+          <Property Name="Deptid" Type="char" MaxLength="6" Nullable="false" />
+          <Property Name="Deptname" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Empid" />
+          </Key>
+          <Property Name="Empid" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="EmployeeName" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="DeptId" Type="char" MaxLength="6" />
+          <Property Name="Pan" Type="varchar" MaxLength="8" Nullable="false" />
+        </EntityType>
+        <EntityType Name="FDTransaction">
+          <Key>
+            <PropertyRef Name="TransactionID" />
+          </Key>
+          <Property Name="TransactionID" Type="int" Nullable="false" />
+          <Property Name="FDAccountID" Type="char" MaxLength="7" />
+          <Property Name="TransactionType" Type="varchar" MaxLength="15" />
+          <Property Name="Amount" Type="smallmoney" Nullable="false" />
+          <Property Name="TransactionDate" Type="datetime" />
+        </EntityType>
+        <EntityType Name="FixedDepositAccount">
+          <Key>
+            <PropertyRef Name="FDAccountID" />
+          </Key>
+          <Property Name="FDAccountID" Type="char" MaxLength="7" Nullable="false" />
+          <Property Name="CustomerID" Type="char" MaxLength="8" />
+          <Property Name="StartDate" Type="date" Nullable="false" />
+          <Property Name="EndDate" Type="date" Nullable="false" />
+          <Property Name="FD_ROI" Type="decimal" Precision="4" Scale="2" Nullable="false" />
+          <Property Name="Amount" Type="decimal" Precision="12" Scale="2" />
+          <Property Name="MaturityAmount" Type="numeric" Precision="37" Scale="11" StoreGeneratedPattern="Computed" />
+        </EntityType>
+        <EntityType Name="LoanAccount">
+          <Key>
+            <PropertyRef Name="Ln-accountid" />
+          </Key>
+          <Property Name="Ln-accountid" Type="char" MaxLength="7" Nullable="false" />
+          <Property Name="Customer" Type="char" MaxLength="8" />
+          <Property Name="loan-amount" Type="smallmoney" />
+          <Property Name="Start-date" Type="date" Nullable="false" />
+          <Property Name="Tenure" Type="int" Nullable="false" />
+          <Property Name="Ln-roi" Type="decimal" Precision="4" Scale="2" Nullable="false" />
+          <Property Name="Emi" Type="decimal" Precision="12" Scale="2" />
+        </EntityType>
+        <EntityType Name="LoanTransaction">
+          <Key>
+            <PropertyRef Name="Transacitonno" />
+          </Key>
+          <Property Name="Transacitonno" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Ln-account-id" Type="char" MaxLength="7" />
+          <Property Name="Emidate" Type="date" />
+          <Property Name="Amount" Type="smallmoney" />
+          <Property Name="Outstanding" Type="int" />
+        </EntityType>
+        <EntityType Name="Manager">
+          <Key>
+            <PropertyRef Name="ManagerID" />
+          </Key>
+          <Property Name="ManagerID" Type="varchar" MaxLength="8" Nullable="false" />
+          <Property Name="ManagerName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PAN" Type="char" MaxLength="8" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SavingsAccount">
+          <Key>
+            <PropertyRef Name="SBAccountID" />
+          </Key>
+          <Property Name="SBAccountID" Type="char" MaxLength="7" Nullable="false" />
+          <Property Name="Customerid" Type="char" MaxLength="8" />
+          <Property Name="Balance" Type="smallmoney" />
+        </EntityType>
+        <EntityType Name="SavingsTransaction">
+          <Key>
+            <PropertyRef Name="Transactionid" />
+          </Key>
+          <Property Name="Transactionid" Type="int" Nullable="false" />
+          <Property Name="SBAccountID" Type="char" MaxLength="7" />
+          <Property Name="Transationdate" Type="date" />
+          <Property Name="Transactiontype" Type="varchar" MaxLength="10" />
+          <Property Name="Amount" Type="smallmoney" />
+        </EntityType>
+        <EntityType Name="UserLogin">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="UserName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PasswordHash" Type="varchar" MaxLength="255" Nullable="false" />
+          <Property Name="Role" Type="varchar" MaxLength="15" />
+          <Property Name="ReferenceID" Type="varchar" MaxLength="8" />
+        </EntityType>
+        <Association Name="FK__Account__Custome__2B0A656D">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="Account" Type="Self.Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Account__OpenedB__2BFE89A6">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="0..1" />
+          <End Role="Account" Type="Self.Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Empid" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="OpenedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Employee__DeptId__2180FB33">
+          <End Role="Department" Type="Self.Department" Multiplicity="0..1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="Deptid" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="DeptId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FDTransac__FDAcc__540C7B00">
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="0..1" />
+          <End Role="FDTransaction" Type="Self.FDTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FixedDepositAccount">
+              <PropertyRef Name="FDAccountID" />
+            </Principal>
+            <Dependent Role="FDTransaction">
+              <PropertyRef Name="FDAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FixedDepo__Custo__4F47C5E3">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="FixedDepositAccount">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FixedDepo__FDAcc__4E53A1AA">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="FixedDepositAccount">
+              <PropertyRef Name="FDAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanAccou__Custo__3D2915A8">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="LoanAccount">
+              <PropertyRef Name="Customer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanAccou__Ln-ac__3E1D39E1">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="LoanAccount">
+              <PropertyRef Name="Ln-accountid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanTrans__Ln-ac__42E1EEFE">
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="0..1" />
+          <End Role="LoanTransaction" Type="Self.LoanTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LoanAccount">
+              <PropertyRef Name="Ln-accountid" />
+            </Principal>
+            <Dependent Role="LoanTransaction">
+              <PropertyRef Name="Ln-account-id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsAc__Custo__31B762FC">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="SavingsAccount">
+              <PropertyRef Name="Customerid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsAc__SBAcc__30C33EC3">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="SavingsAccount">
+              <PropertyRef Name="SBAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsTr__SBAcc__37703C52">
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="0..1" />
+          <End Role="SavingsTransaction" Type="Self.SavingsTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SavingsAccount">
+              <PropertyRef Name="SBAccountID" />
+            </Principal>
+            <Dependent Role="SavingsTransaction">
+              <PropertyRef Name="SBAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Banking_DetailsModelStoreContainer">
+          <EntitySet Name="Account" EntityType="Self.Account" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Department" EntityType="Self.Department" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FDTransaction" EntityType="Self.FDTransaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FixedDepositAccount" EntityType="Self.FixedDepositAccount" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoanAccount" EntityType="Self.LoanAccount" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LoanTransaction" EntityType="Self.LoanTransaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Manager" EntityType="Self.Manager" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SavingsAccount" EntityType="Self.SavingsAccount" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SavingsTransaction" EntityType="Self.SavingsTransaction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserLogin" EntityType="Self.UserLogin" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Account__Custome__2B0A656D" Association="Self.FK__Account__Custome__2B0A656D">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="Account" EntitySet="Account" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Account__OpenedB__2BFE89A6" Association="Self.FK__Account__OpenedB__2BFE89A6">
+            <End Role="Employee" EntitySet="Employee" />
+            <End Role="Account" EntitySet="Account" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Employee__DeptId__2180FB33" Association="Self.FK__Employee__DeptId__2180FB33">
+            <End Role="Department" EntitySet="Department" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FDTransac__FDAcc__540C7B00" Association="Self.FK__FDTransac__FDAcc__540C7B00">
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccount" />
+            <End Role="FDTransaction" EntitySet="FDTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FixedDepo__Custo__4F47C5E3" Association="Self.FK__FixedDepo__Custo__4F47C5E3">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FixedDepo__FDAcc__4E53A1AA" Association="Self.FK__FixedDepo__FDAcc__4E53A1AA">
+            <End Role="Account" EntitySet="Account" />
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanAccou__Custo__3D2915A8" Association="Self.FK__LoanAccou__Custo__3D2915A8">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="LoanAccount" EntitySet="LoanAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanAccou__Ln-ac__3E1D39E1" Association="Self.FK__LoanAccou__Ln-ac__3E1D39E1">
+            <End Role="Account" EntitySet="Account" />
+            <End Role="LoanAccount" EntitySet="LoanAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanTrans__Ln-ac__42E1EEFE" Association="Self.FK__LoanTrans__Ln-ac__42E1EEFE">
+            <End Role="LoanAccount" EntitySet="LoanAccount" />
+            <End Role="LoanTransaction" EntitySet="LoanTransaction" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsAc__Custo__31B762FC" Association="Self.FK__SavingsAc__Custo__31B762FC">
+            <End Role="Customer" EntitySet="Customer" />
+            <End Role="SavingsAccount" EntitySet="SavingsAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsAc__SBAcc__30C33EC3" Association="Self.FK__SavingsAc__SBAcc__30C33EC3">
+            <End Role="Account" EntitySet="Account" />
+            <End Role="SavingsAccount" EntitySet="SavingsAccount" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsTr__SBAcc__37703C52" Association="Self.FK__SavingsTr__SBAcc__37703C52">
+            <End Role="SavingsAccount" EntitySet="SavingsAccount" />
+            <End Role="SavingsTransaction" EntitySet="SavingsTransaction" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Banking_DetailsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Account">
+          <Key>
+            <PropertyRef Name="AccountID" />
+          </Key>
+          <Property Name="AccountID" Type="String" MaxLength="7" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="AccountType" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="CustomerID" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="OpenedBy" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="OpenedByRole" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="OpenDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Status" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="ClosedDate" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="Customer" Relationship="Self.FK__Account__Custome__2B0A656D" FromRole="Account" ToRole="Customer" />
+          <NavigationProperty Name="Employee" Relationship="Self.FK__Account__OpenedB__2BFE89A6" FromRole="Account" ToRole="Employee" />
+          <NavigationProperty Name="FixedDepositAccount" Relationship="Self.FK__FixedDepo__FDAcc__4E53A1AA" FromRole="Account" ToRole="FixedDepositAccount" />
+          <NavigationProperty Name="LoanAccount" Relationship="Self.FK__LoanAccou__Ln_ac__3E1D39E1" FromRole="Account" ToRole="LoanAccount" />
+          <NavigationProperty Name="SavingsAccount" Relationship="Self.FK__SavingsAc__SBAcc__30C33EC3" FromRole="Account" ToRole="SavingsAccount" />
+        </EntityType>
+        <EntityType Name="Customer">
+          <Key>
+            <PropertyRef Name="Custid" />
+          </Key>
+          <Property Name="Custid" Type="String" MaxLength="8" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="Custname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="DOB" Type="DateTime" Precision="0" />
+          <Property Name="Pan" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Accounts" Relationship="Self.FK__Account__Custome__2B0A656D" FromRole="Customer" ToRole="Account" />
+          <NavigationProperty Name="FixedDepositAccounts" Relationship="Self.FK__FixedDepo__Custo__4F47C5E3" FromRole="Customer" ToRole="FixedDepositAccount" />
+          <NavigationProperty Name="LoanAccounts" Relationship="Self.FK__LoanAccou__Custo__3D2915A8" FromRole="Customer" ToRole="LoanAccount" />
+          <NavigationProperty Name="SavingsAccounts" Relationship="Self.FK__SavingsAc__Custo__31B762FC" FromRole="Customer" ToRole="SavingsAccount" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="Deptid" />
+          </Key>
+          <Property Name="Deptid" Type="String" MaxLength="6" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="Deptname" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Employees" Relationship="Self.FK__Employee__DeptId__2180FB33" FromRole="Department" ToRole="Employee" />
+        </EntityType>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="Empid" />
+          </Key>
+          <Property Name="Empid" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="EmployeeName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="DeptId" Type="String" MaxLength="6" FixedLength="true" Unicode="false" />
+          <Property Name="Pan" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="Accounts" Relationship="Self.FK__Account__OpenedB__2BFE89A6" FromRole="Employee" ToRole="Account" />
+          <NavigationProperty Name="Department" Relationship="Self.FK__Employee__DeptId__2180FB33" FromRole="Employee" ToRole="Department" />
+        </EntityType>
+        <EntityType Name="FDTransaction">
+          <Key>
+            <PropertyRef Name="TransactionID" />
+          </Key>
+          <Property Name="TransactionID" Type="Int32" Nullable="false" />
+          <Property Name="FDAccountID" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="TransactionType" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Amount" Type="Decimal" Precision="10" Scale="4" Nullable="false" />
+          <Property Name="TransactionDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="FixedDepositAccount" Relationship="Self.FK__FDTransac__FDAcc__540C7B00" FromRole="FDTransaction" ToRole="FixedDepositAccount" />
+        </EntityType>
+        <EntityType Name="FixedDepositAccount">
+          <Key>
+            <PropertyRef Name="FDAccountID" />
+          </Key>
+          <Property Name="FDAccountID" Type="String" MaxLength="7" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="CustomerID" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="StartDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="EndDate" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="FD_ROI" Type="Decimal" Precision="4" Scale="2" Nullable="false" />
+          <Property Name="Amount" Type="Decimal" Precision="12" Scale="2" />
+          <Property Name="MaturityAmount" Type="Decimal" Precision="37" Scale="11" annotation:StoreGeneratedPattern="Computed" />
+          <NavigationProperty Name="Account" Relationship="Self.FK__FixedDepo__FDAcc__4E53A1AA" FromRole="FixedDepositAccount" ToRole="Account" />
+          <NavigationProperty Name="Customer" Relationship="Self.FK__FixedDepo__Custo__4F47C5E3" FromRole="FixedDepositAccount" ToRole="Customer" />
+          <NavigationProperty Name="FDTransactions" Relationship="Self.FK__FDTransac__FDAcc__540C7B00" FromRole="FixedDepositAccount" ToRole="FDTransaction" />
+        </EntityType>
+        <EntityType Name="LoanAccount">
+          <Key>
+            <PropertyRef Name="Ln_accountid" />
+          </Key>
+          <Property Name="Ln_accountid" Type="String" MaxLength="7" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="Customer" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="loan_amount" Type="Decimal" Precision="10" Scale="4" />
+          <Property Name="Start_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="Tenure" Type="Int32" Nullable="false" />
+          <Property Name="Ln_roi" Type="Decimal" Precision="4" Scale="2" Nullable="false" />
+          <Property Name="Emi" Type="Decimal" Precision="12" Scale="2" />
+          <NavigationProperty Name="Account" Relationship="Self.FK__LoanAccou__Ln_ac__3E1D39E1" FromRole="LoanAccount" ToRole="Account" />
+          <NavigationProperty Name="Customer1" Relationship="Self.FK__LoanAccou__Custo__3D2915A8" FromRole="LoanAccount" ToRole="Customer" />
+          <NavigationProperty Name="LoanTransactions" Relationship="Self.FK__LoanTrans__Ln_ac__42E1EEFE" FromRole="LoanAccount" ToRole="LoanTransaction" />
+        </EntityType>
+        <EntityType Name="LoanTransaction">
+          <Key>
+            <PropertyRef Name="Transacitonno" />
+          </Key>
+          <Property Name="Transacitonno" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Ln_account_id" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="Emidate" Type="DateTime" Precision="0" />
+          <Property Name="Amount" Type="Decimal" Precision="10" Scale="4" />
+          <Property Name="Outstanding" Type="Int32" />
+          <NavigationProperty Name="LoanAccount" Relationship="Self.FK__LoanTrans__Ln_ac__42E1EEFE" FromRole="LoanTransaction" ToRole="LoanAccount" />
+        </EntityType>
+        <EntityType Name="Manager">
+          <Key>
+            <PropertyRef Name="ManagerID" />
+          </Key>
+          <Property Name="ManagerID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="ManagerName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PAN" Type="String" MaxLength="8" FixedLength="true" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SavingsAccount">
+          <Key>
+            <PropertyRef Name="SBAccountID" />
+          </Key>
+          <Property Name="SBAccountID" Type="String" MaxLength="7" FixedLength="true" Unicode="false" Nullable="false" />
+          <Property Name="Customerid" Type="String" MaxLength="8" FixedLength="true" Unicode="false" />
+          <Property Name="Balance" Type="Decimal" Precision="10" Scale="4" />
+          <NavigationProperty Name="Account" Relationship="Self.FK__SavingsAc__SBAcc__30C33EC3" FromRole="SavingsAccount" ToRole="Account" />
+          <NavigationProperty Name="Customer" Relationship="Self.FK__SavingsAc__Custo__31B762FC" FromRole="SavingsAccount" ToRole="Customer" />
+          <NavigationProperty Name="SavingsTransactions" Relationship="Self.FK__SavingsTr__SBAcc__37703C52" FromRole="SavingsAccount" ToRole="SavingsTransaction" />
+        </EntityType>
+        <EntityType Name="SavingsTransaction">
+          <Key>
+            <PropertyRef Name="Transactionid" />
+          </Key>
+          <Property Name="Transactionid" Type="Int32" Nullable="false" />
+          <Property Name="SBAccountID" Type="String" MaxLength="7" FixedLength="true" Unicode="false" />
+          <Property Name="Transationdate" Type="DateTime" Precision="0" />
+          <Property Name="Transactiontype" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Amount" Type="Decimal" Precision="10" Scale="4" />
+          <NavigationProperty Name="SavingsAccount" Relationship="Self.FK__SavingsTr__SBAcc__37703C52" FromRole="SavingsTransaction" ToRole="SavingsAccount" />
+        </EntityType>
+        <EntityType Name="UserLogin">
+          <Key>
+            <PropertyRef Name="UserID" />
+          </Key>
+          <Property Name="UserID" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="PasswordHash" Type="String" MaxLength="255" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Role" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="ReferenceID" Type="String" MaxLength="8" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <Association Name="FK__Account__Custome__2B0A656D">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="Account" Type="Self.Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Account__OpenedB__2BFE89A6">
+          <End Role="Employee" Type="Self.Employee" Multiplicity="0..1" />
+          <End Role="Account" Type="Self.Account" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Employee">
+              <PropertyRef Name="Empid" />
+            </Principal>
+            <Dependent Role="Account">
+              <PropertyRef Name="OpenedBy" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FixedDepo__FDAcc__4E53A1AA">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="FixedDepositAccount">
+              <PropertyRef Name="FDAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanAccou__Ln_ac__3E1D39E1">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="LoanAccount">
+              <PropertyRef Name="Ln_accountid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsAc__SBAcc__30C33EC3">
+          <End Role="Account" Type="Self.Account" Multiplicity="1" />
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Account">
+              <PropertyRef Name="AccountID" />
+            </Principal>
+            <Dependent Role="SavingsAccount">
+              <PropertyRef Name="SBAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FixedDepo__Custo__4F47C5E3">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="FixedDepositAccount">
+              <PropertyRef Name="CustomerID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanAccou__Custo__3D2915A8">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="LoanAccount">
+              <PropertyRef Name="Customer" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsAc__Custo__31B762FC">
+          <End Role="Customer" Type="Self.Customer" Multiplicity="0..1" />
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Customer">
+              <PropertyRef Name="Custid" />
+            </Principal>
+            <Dependent Role="SavingsAccount">
+              <PropertyRef Name="Customerid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Employee__DeptId__2180FB33">
+          <End Role="Department" Type="Self.Department" Multiplicity="0..1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Department">
+              <PropertyRef Name="Deptid" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="DeptId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__FDTransac__FDAcc__540C7B00">
+          <End Role="FixedDepositAccount" Type="Self.FixedDepositAccount" Multiplicity="0..1" />
+          <End Role="FDTransaction" Type="Self.FDTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="FixedDepositAccount">
+              <PropertyRef Name="FDAccountID" />
+            </Principal>
+            <Dependent Role="FDTransaction">
+              <PropertyRef Name="FDAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__LoanTrans__Ln_ac__42E1EEFE">
+          <End Role="LoanAccount" Type="Self.LoanAccount" Multiplicity="0..1" />
+          <End Role="LoanTransaction" Type="Self.LoanTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LoanAccount">
+              <PropertyRef Name="Ln_accountid" />
+            </Principal>
+            <Dependent Role="LoanTransaction">
+              <PropertyRef Name="Ln_account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__SavingsTr__SBAcc__37703C52">
+          <End Role="SavingsAccount" Type="Self.SavingsAccount" Multiplicity="0..1" />
+          <End Role="SavingsTransaction" Type="Self.SavingsTransaction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="SavingsAccount">
+              <PropertyRef Name="SBAccountID" />
+            </Principal>
+            <Dependent Role="SavingsTransaction">
+              <PropertyRef Name="SBAccountID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Banking_DetailsEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Accounts" EntityType="Self.Account" />
+          <EntitySet Name="Customers" EntityType="Self.Customer" />
+          <EntitySet Name="Departments" EntityType="Self.Department" />
+          <EntitySet Name="Employees" EntityType="Self.Employee" />
+          <EntitySet Name="FDTransactions" EntityType="Self.FDTransaction" />
+          <EntitySet Name="FixedDepositAccounts" EntityType="Self.FixedDepositAccount" />
+          <EntitySet Name="LoanAccounts" EntityType="Self.LoanAccount" />
+          <EntitySet Name="LoanTransactions" EntityType="Self.LoanTransaction" />
+          <EntitySet Name="Managers" EntityType="Self.Manager" />
+          <EntitySet Name="SavingsAccounts" EntityType="Self.SavingsAccount" />
+          <EntitySet Name="SavingsTransactions" EntityType="Self.SavingsTransaction" />
+          <EntitySet Name="UserLogins" EntityType="Self.UserLogin" />
+          <AssociationSet Name="FK__Account__Custome__2B0A656D" Association="Self.FK__Account__Custome__2B0A656D">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="Account" EntitySet="Accounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Account__OpenedB__2BFE89A6" Association="Self.FK__Account__OpenedB__2BFE89A6">
+            <End Role="Employee" EntitySet="Employees" />
+            <End Role="Account" EntitySet="Accounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FixedDepo__FDAcc__4E53A1AA" Association="Self.FK__FixedDepo__FDAcc__4E53A1AA">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanAccou__Ln_ac__3E1D39E1" Association="Self.FK__LoanAccou__Ln_ac__3E1D39E1">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="LoanAccount" EntitySet="LoanAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsAc__SBAcc__30C33EC3" Association="Self.FK__SavingsAc__SBAcc__30C33EC3">
+            <End Role="Account" EntitySet="Accounts" />
+            <End Role="SavingsAccount" EntitySet="SavingsAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FixedDepo__Custo__4F47C5E3" Association="Self.FK__FixedDepo__Custo__4F47C5E3">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanAccou__Custo__3D2915A8" Association="Self.FK__LoanAccou__Custo__3D2915A8">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="LoanAccount" EntitySet="LoanAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsAc__Custo__31B762FC" Association="Self.FK__SavingsAc__Custo__31B762FC">
+            <End Role="Customer" EntitySet="Customers" />
+            <End Role="SavingsAccount" EntitySet="SavingsAccounts" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Employee__DeptId__2180FB33" Association="Self.FK__Employee__DeptId__2180FB33">
+            <End Role="Department" EntitySet="Departments" />
+            <End Role="Employee" EntitySet="Employees" />
+          </AssociationSet>
+          <AssociationSet Name="FK__FDTransac__FDAcc__540C7B00" Association="Self.FK__FDTransac__FDAcc__540C7B00">
+            <End Role="FixedDepositAccount" EntitySet="FixedDepositAccounts" />
+            <End Role="FDTransaction" EntitySet="FDTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__LoanTrans__Ln_ac__42E1EEFE" Association="Self.FK__LoanTrans__Ln_ac__42E1EEFE">
+            <End Role="LoanAccount" EntitySet="LoanAccounts" />
+            <End Role="LoanTransaction" EntitySet="LoanTransactions" />
+          </AssociationSet>
+          <AssociationSet Name="FK__SavingsTr__SBAcc__37703C52" Association="Self.FK__SavingsTr__SBAcc__37703C52">
+            <End Role="SavingsAccount" EntitySet="SavingsAccounts" />
+            <End Role="SavingsTransaction" EntitySet="SavingsTransactions" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Banking_DetailsModelStoreContainer" CdmEntityContainer="Banking_DetailsEntities">
+          <EntitySetMapping Name="Accounts">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.Account">
+              <MappingFragment StoreEntitySet="Account">
+                <ScalarProperty Name="AccountID" ColumnName="AccountID" />
+                <ScalarProperty Name="AccountType" ColumnName="AccountType" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="OpenedBy" ColumnName="OpenedBy" />
+                <ScalarProperty Name="OpenedByRole" ColumnName="OpenedByRole" />
+                <ScalarProperty Name="OpenDate" ColumnName="OpenDate" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ClosedDate" ColumnName="ClosedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Customers">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.Customer">
+              <MappingFragment StoreEntitySet="Customer">
+                <ScalarProperty Name="Custid" ColumnName="Custid" />
+                <ScalarProperty Name="Custname" ColumnName="Custname" />
+                <ScalarProperty Name="DOB" ColumnName="DOB" />
+                <ScalarProperty Name="Pan" ColumnName="Pan" />
+                <ScalarProperty Name="Address" ColumnName="Address" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.Department">
+              <MappingFragment StoreEntitySet="Department">
+                <ScalarProperty Name="Deptid" ColumnName="Deptid" />
+                <ScalarProperty Name="Deptname" ColumnName="Deptname" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="Empid" ColumnName="Empid" />
+                <ScalarProperty Name="EmployeeName" ColumnName="EmployeeName" />
+                <ScalarProperty Name="DeptId" ColumnName="DeptId" />
+                <ScalarProperty Name="Pan" ColumnName="Pan" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FDTransactions">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.FDTransaction">
+              <MappingFragment StoreEntitySet="FDTransaction">
+                <ScalarProperty Name="TransactionID" ColumnName="TransactionID" />
+                <ScalarProperty Name="FDAccountID" ColumnName="FDAccountID" />
+                <ScalarProperty Name="TransactionType" ColumnName="TransactionType" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FixedDepositAccounts">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.FixedDepositAccount">
+              <MappingFragment StoreEntitySet="FixedDepositAccount">
+                <ScalarProperty Name="FDAccountID" ColumnName="FDAccountID" />
+                <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="FD_ROI" ColumnName="FD_ROI" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="MaturityAmount" ColumnName="MaturityAmount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LoanAccounts">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.LoanAccount">
+              <MappingFragment StoreEntitySet="LoanAccount">
+                <ScalarProperty Name="Ln_accountid" ColumnName="Ln-accountid" />
+                <ScalarProperty Name="Customer" ColumnName="Customer" />
+                <ScalarProperty Name="loan_amount" ColumnName="loan-amount" />
+                <ScalarProperty Name="Start_date" ColumnName="Start-date" />
+                <ScalarProperty Name="Tenure" ColumnName="Tenure" />
+                <ScalarProperty Name="Ln_roi" ColumnName="Ln-roi" />
+                <ScalarProperty Name="Emi" ColumnName="Emi" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LoanTransactions">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.LoanTransaction">
+              <MappingFragment StoreEntitySet="LoanTransaction">
+                <ScalarProperty Name="Transacitonno" ColumnName="Transacitonno" />
+                <ScalarProperty Name="Ln_account_id" ColumnName="Ln-account-id" />
+                <ScalarProperty Name="Emidate" ColumnName="Emidate" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Outstanding" ColumnName="Outstanding" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Managers">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.Manager">
+              <MappingFragment StoreEntitySet="Manager">
+                <ScalarProperty Name="ManagerID" ColumnName="ManagerID" />
+                <ScalarProperty Name="ManagerName" ColumnName="ManagerName" />
+                <ScalarProperty Name="PAN" ColumnName="PAN" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SavingsAccounts">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.SavingsAccount">
+              <MappingFragment StoreEntitySet="SavingsAccount">
+                <ScalarProperty Name="SBAccountID" ColumnName="SBAccountID" />
+                <ScalarProperty Name="Customerid" ColumnName="Customerid" />
+                <ScalarProperty Name="Balance" ColumnName="Balance" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SavingsTransactions">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.SavingsTransaction">
+              <MappingFragment StoreEntitySet="SavingsTransaction">
+                <ScalarProperty Name="Transactionid" ColumnName="Transactionid" />
+                <ScalarProperty Name="SBAccountID" ColumnName="SBAccountID" />
+                <ScalarProperty Name="Transationdate" ColumnName="Transationdate" />
+                <ScalarProperty Name="Transactiontype" ColumnName="Transactiontype" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserLogins">
+            <EntityTypeMapping TypeName="Banking_DetailsModel.UserLogin">
+              <MappingFragment StoreEntitySet="UserLogin">
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="Role" ColumnName="Role" />
+                <ScalarProperty Name="ReferenceID" ColumnName="ReferenceID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
