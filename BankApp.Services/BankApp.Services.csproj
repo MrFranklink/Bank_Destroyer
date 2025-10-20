@@ -57,7 +57,10 @@
     <Compile Include="AuthService.cs" />
     <Compile Include="CustomerService.cs" />
     <Compile Include="EmployeeService.cs" />
+    <Compile Include="FixedDepositAccountService.cs" />
+    <Compile Include="LoanAccountService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SavingsAccountService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DB\DB.csproj">

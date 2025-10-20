@@ -11,11 +11,17 @@ namespace Bank_App.Controllers
     {
         private readonly CustomerService _customerService;
         private readonly EmployeeService _employeeService;
+        private readonly SavingsAccountService _savingsService;
+        private readonly FixedDepositAccountService _fdService;
+        private readonly LoanAccountService _loanService;
 
         public DashboardController()
         {
             _customerService = new CustomerService();
             _employeeService = new EmployeeService();
+            _savingsService = new SavingsAccountService();
+            _fdService = new FixedDepositAccountService();
+            _loanService = new LoanAccountService();
         }
 
         // GET: Dashboard/Index
@@ -58,7 +64,7 @@ namespace Bank_App.Controllers
 
         // POST: Dashboard/RegisterCustomer
         [HttpPost]
-        public ActionResult RegisterCustomer(string custId, string custName, DateTime dob, string pan, string phone, string address)
+        public ActionResult RegisterCustomer(string custName, DateTime dob, string pan, string phone, string address)
         {
             // Check if user is manager
             if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
@@ -68,11 +74,17 @@ namespace Bank_App.Controllers
 
             try
             {
-                var result = _customerService.RegisterCustomer(custId, custName, dob, pan, address, phone);
-                
+                var result = _customerService.RegisterCustomer(custName, dob, pan, address, phone);
+
                 if (result.IsSuccess)
                 {
-                    TempData["SuccessMessage"] = result.Message;
+                    // Display credentials in success message
+                    TempData["SuccessMessage"] = $"{result.Message}";
+                    TempData["ShowCredentials"] = true;
+                    TempData["CredentialsTitle"] = "Customer Login Credentials";
+                    TempData["CredentialsId"] = result.GeneratedId;
+                    TempData["CredentialsUsername"] = result.GeneratedUsername;
+                    TempData["CredentialsPassword"] = result.GeneratedPassword;
                 }
                 else
                 {
@@ -89,7 +101,7 @@ namespace Bank_App.Controllers
 
         // POST: Dashboard/RegisterEmployee
         [HttpPost]
-        public ActionResult RegisterEmployee(string empId, string empName, string deptId, string pan)
+        public ActionResult RegisterEmployee(string empName, string deptId, string pan)
         {
             // Check if user is manager
             if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
@@ -99,11 +111,17 @@ namespace Bank_App.Controllers
 
             try
             {
-                var result = _employeeService.RegisterEmployee(empId, empName, deptId, pan);
-                
+                var result = _employeeService.RegisterEmployee(empName, deptId, pan);
+
                 if (result.IsSuccess)
                 {
-                    TempData["SuccessMessage"] = result.Message;
+                    // Display credentials in success message
+                    TempData["SuccessMessage"] = $"{result.Message}";
+                    TempData["ShowCredentials"] = true;
+                    TempData["CredentialsTitle"] = "Employee Login Credentials";
+                    TempData["CredentialsId"] = result.GeneratedId;
+                    TempData["CredentialsUsername"] = result.GeneratedUsername;
+                    TempData["CredentialsPassword"] = result.GeneratedPassword;
                 }
                 else
                 {
@@ -117,5 +135,106 @@ namespace Bank_App.Controllers
 
             return RedirectToAction("Index");
         }
+
+        // POST: Dashboard/OpenSavingsAccount
+        [HttpPost]
+        public ActionResult OpenSavingsAccount(string customerId, decimal initialDeposit)
+        {
+            if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                string openedBy = Session["ReferenceID"]?.ToString();
+                string openedByRole = Session["Role"]?.ToString();
+
+                var result = _savingsService.OpenSavingsAccount(customerId, initialDeposit, openedBy, openedByRole);
+
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to open savings account: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Dashboard/OpenFixedDepositAccount
+        [HttpPost]
+        public ActionResult OpenFixedDepositAccount(string customerId, decimal amount, DateTime startDate, int tenureMonths)
+        {
+            if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                string openedBy = Session["ReferenceID"]?.ToString();
+                string openedByRole = Session["Role"]?.ToString();
+
+                var result = _fdService.OpenFixedDepositAccount(customerId, amount, startDate, tenureMonths, openedBy, openedByRole);
+
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to open fixed deposit: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Dashboard/OpenLoanAccount
+        [HttpPost]
+        public ActionResult OpenLoanAccount(string customerId, decimal loanAmount, DateTime startDate, int tenureMonths, decimal monthlySalary)
+        {
+            if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            try
+            {
+                string openedBy = Session["ReferenceID"]?.ToString();
+                string openedByRole = Session["Role"]?.ToString();
+
+                var result = _loanService.OpenLoanAccount(customerId, loanAmount, startDate, tenureMonths, monthlySalary, openedBy, openedByRole);
+
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Failed to open loan account: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
+
+      

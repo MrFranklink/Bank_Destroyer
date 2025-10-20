@@ -67,11 +67,15 @@ namespace DB
                 {
                     return context.Database.Exists();
                 }
+
             }
             catch
             {
                 return false;
             }
         }
+
     }
+
 }
+
