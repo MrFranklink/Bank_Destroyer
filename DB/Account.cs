@@ -24,7 +24,6 @@ namespace DB
         public Nullable<System.DateTime> ClosedDate { get; set; }
     
         public virtual Customer Customer { get; set; }
-        public virtual Employee Employee { get; set; }
         public virtual FixedDepositAccount FixedDepositAccount { get; set; }
         public virtual LoanAccount LoanAccount { get; set; }
         public virtual SavingsAccount SavingsAccount { get; set; }

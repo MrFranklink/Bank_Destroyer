@@ -119,6 +119,7 @@
     <Content Include="Views\Dashboard\ManagerDashboard.cshtml" />
     <Content Include="Views\Dashboard\_ManagerDashboardNewTabs.cshtml" />
     <Content Include="Views\Dashboard\ManagerDashboard_New.cshtml" />
+    <Content Include="Views\Dashboard\ChangePassword.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

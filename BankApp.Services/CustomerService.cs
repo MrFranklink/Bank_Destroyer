@@ -10,11 +10,13 @@ namespace BankApp.Services
     {
         private readonly CustomerRepository _customerRepo;
         private readonly UserLoginRepository _userLoginRepo;
+        private readonly EmployeeRepository _employeeRepo;
 
         public CustomerService()
         {
             _customerRepo = new CustomerRepository();
             _userLoginRepo = new UserLoginRepository();
+            _employeeRepo = new EmployeeRepository();
         }
 
         /// <summary>
@@ -27,8 +29,12 @@ namespace BankApp.Services
                 () => string.IsNullOrWhiteSpace(custName) ? Error("Customer Name is required") : null,
                 () => string.IsNullOrWhiteSpace(pan) ? Error("PAN is required") : null,
                 () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be 4 letters followed by 4 digits (e.g., ABCD1234)") : null,
+                () => _customerRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered with another customer. Each PAN can only be used once.") : null,
+                () => _employeeRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered as an employee. Same person cannot be both customer and employee.") : null,
                 () => dob > DateTime.Now.AddYears(-18) ? Error("Customer must be at least 18 years old") : null
             };
+
+            //Later Correct The Pan Details Validation
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
             if (validationError != null) return validationError;
@@ -49,9 +55,13 @@ namespace BankApp.Services
                 // Auto-generate username from first name
                 string username = IdGenerator.GenerateUsername(custName.Split(' ')[0]);
 
+                // Generate UNIQUE UserID for login (different from Customer ID)
+                string userId = IdGenerator.GenerateUserId();
+
                 // Create UserLogin with default password
                 string defaultPassword = "Dummy";
-                bool loginCreated = _userLoginRepo.CreateUser(custId, username, defaultPassword, "CUSTOMER", custId);
+                // UserID = unique login ID, ReferenceID = Customer ID
+                bool loginCreated = _userLoginRepo.CreateUser(userId, username, defaultPassword, "CUSTOMER", custId);
 
                 if (!loginCreated)
                 {

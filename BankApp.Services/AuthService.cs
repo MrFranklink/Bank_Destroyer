@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DB;
+using DB.Utilities;
 
 namespace BankApp.Services
 {
@@ -31,7 +32,26 @@ namespace BankApp.Services
             var user = _userRepo.GetUserByUsername(username);
             if (user == null) return Error("Invalid username or password");
 
-            if (user.PasswordHash != password) return Error("Invalid username or password");
+            // BACKWARD COMPATIBILITY: Check if password is plain text or hashed
+            bool isPasswordValid = false;
+            
+            // Try hashed password first
+            if (PasswordHelper.VerifyPassword(password, user.PasswordHash))
+            {
+                isPasswordValid = true;
+            }
+            // Fallback: Try plain text comparison (for old passwords)
+            else if (user.PasswordHash == password)
+            {
+                isPasswordValid = true;
+                
+                // OPTIONAL: Auto-upgrade to hashed password on first login
+                // Uncomment the line below to automatically hash old passwords
+                // _userRepo.UpdatePassword(user.UserID, password);
+            }
+
+            if (!isPasswordValid)
+                return Error("Invalid username or password");
 
             return Success("Login successful", user.UserID, user.UserName, user.Role, user.ReferenceID);
         }
@@ -54,8 +74,46 @@ namespace BankApp.Services
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
             if (validationError != null) return validationError;
 
+            // Password will be hashed in repository
             bool success = _userRepo.CreateUser(userId, userName, password, role, referenceId);
             return success ? Success("Registration successful! Please login.") : Error("Registration failed. Please try again.");
+        }
+
+        /// <summary>
+        /// Change user password
+        /// </summary>
+        public LoginResult ChangePassword(string userId, string oldPassword, string newPassword, string confirmNewPassword)
+        {
+            var validationRules = new List<Func<LoginResult>>
+            {
+                () => string.IsNullOrWhiteSpace(oldPassword) ? Error("Current password is required") : null,
+                () => string.IsNullOrWhiteSpace(newPassword) ? Error("New password is required") : null,
+                () => string.IsNullOrWhiteSpace(confirmNewPassword) ? Error("Please confirm new password") : null,
+                () => newPassword != confirmNewPassword ? Error("New passwords do not match") : null
+            };
+
+            var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
+            if (validationError != null) return validationError;
+
+            // Validate new password strength
+            string passwordError = PasswordHelper.ValidatePassword(newPassword);
+            if (passwordError != null)
+                return Error(passwordError);
+
+            // Get user and verify old password
+            var user = _userRepo.GetUserByUserId(userId);
+            if (user == null)
+                return Error("User not found");
+
+            if (!PasswordHelper.VerifyPassword(oldPassword, user.PasswordHash))
+                return Error("Current password is incorrect");
+
+            if (oldPassword == newPassword)
+                return Error("New password must be different from current password");
+
+            // Update password
+            bool success = _userRepo.UpdatePassword(userId, newPassword);
+            return success ? Success("Password changed successfully!") : Error("Failed to change password. Please try again.");
         }
 
         private LoginResult Error(string message) => new LoginResult { IsSuccess = false, Message = message };

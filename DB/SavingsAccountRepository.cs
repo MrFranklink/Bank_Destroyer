@@ -16,10 +16,16 @@ namespace DB
             {
                 using (var context = new Banking_DetailsEntities())
                 {
+                    System.Diagnostics.Debug.WriteLine("=== CreateSavingsAccount Called ===");
+                    System.Diagnostics.Debug.WriteLine($"SBAccountID: '{sbAccountId}'");
+                    System.Diagnostics.Debug.WriteLine($"CustomerID: '{customerId}'");
+                    System.Diagnostics.Debug.WriteLine($"InitialBalance: {initialBalance}");
+
                     // Check if savings account already exists for this customer
                     if (context.SavingsAccounts.Any(sa => sa.Customerid == customerId))
                     {
                         errorMessage = "Customer already has a savings account";
+                        System.Diagnostics.Debug.WriteLine("ERROR: Customer already has savings account");
                         return false;
                     }
 
@@ -32,18 +38,33 @@ namespace DB
                         Customer = null
                     };
 
+                    System.Diagnostics.Debug.WriteLine("Adding SavingsAccount to context...");
                     context.SavingsAccounts.Add(newSavingsAccount);
+                    
+                    System.Diagnostics.Debug.WriteLine("Calling SaveChanges...");
                     context.SaveChanges();
+                    
+                    System.Diagnostics.Debug.WriteLine("SUCCESS: SavingsAccount created");
                     return true;
                 }
             }
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
+                System.Diagnostics.Debug.WriteLine($"ERROR: {ex.Message}");
+                
                 if (ex.InnerException != null)
                 {
                     errorMessage += " | Inner: " + ex.InnerException.Message;
+                    System.Diagnostics.Debug.WriteLine($"INNER: {ex.InnerException.Message}");
+                    
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"INNER-INNER: {ex.InnerException.InnerException.Message}");
+                    }
                 }
+                
+                System.Diagnostics.Debug.WriteLine($"STACK: {ex.StackTrace}");
                 return false;
             }
         }

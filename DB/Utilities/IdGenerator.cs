@@ -68,21 +68,40 @@ namespace DB.Utilities
 
         /// <summary>
         /// Generate next Savings Account ID in format: SB + 5 digits (e.g., SB00001)
+        /// Checks both Account and SavingsAccount tables to avoid duplicates
         /// </summary>
         public static string GenerateSavingsAccountId()
         {
             using (var context = new Banking_DetailsEntities())
             {
-                var lastAccount = context.SavingsAccounts
-                    .OrderByDescending(a => a.SBAccountID)
+                // Check both Account table (master) and SavingsAccount table
+                var lastFromAccount = context.Accounts
+                    .Where(a => a.AccountID.StartsWith("SB"))
+                    .OrderByDescending(a => a.AccountID)
+                    .Select(a => a.AccountID)
                     .FirstOrDefault();
 
-                if (lastAccount == null)
+                var lastFromSavings = context.SavingsAccounts
+                    .OrderByDescending(a => a.SBAccountID)
+                    .Select(a => a.SBAccountID)
+                    .FirstOrDefault();
+
+                // Get the higher ID from both tables
+                string lastId = null;
+                if (lastFromAccount != null && lastFromSavings != null)
+                {
+                    lastId = string.Compare(lastFromAccount, lastFromSavings) > 0 ? lastFromAccount : lastFromSavings;
+                }
+                else
+                {
+                    lastId = lastFromAccount ?? lastFromSavings;
+                }
+
+                if (lastId == null)
                 {
                     return "SB00001";
                 }
 
-                string lastId = lastAccount.SBAccountID;
                 if (lastId.StartsWith("SB") && lastId.Length == 7)
                 {
                     int numericPart = int.Parse(lastId.Substring(2));
@@ -96,21 +115,38 @@ namespace DB.Utilities
 
         /// <summary>
         /// Generate next Fixed Deposit Account ID in format: FD + 5 digits (e.g., FD00001)
+        /// Checks both Account and FixedDepositAccount tables to avoid duplicates
         /// </summary>
         public static string GenerateFixedDepositAccountId()
         {
             using (var context = new Banking_DetailsEntities())
             {
-                var lastAccount = context.FixedDepositAccounts
-                    .OrderByDescending(a => a.FDAccountID)
+                var lastFromAccount = context.Accounts
+                    .Where(a => a.AccountID.StartsWith("FD"))
+                    .OrderByDescending(a => a.AccountID)
+                    .Select(a => a.AccountID)
                     .FirstOrDefault();
 
-                if (lastAccount == null)
+                var lastFromFD = context.FixedDepositAccounts
+                    .OrderByDescending(a => a.FDAccountID)
+                    .Select(a => a.FDAccountID)
+                    .FirstOrDefault();
+
+                string lastId = null;
+                if (lastFromAccount != null && lastFromFD != null)
+                {
+                    lastId = string.Compare(lastFromAccount, lastFromFD) > 0 ? lastFromAccount : lastFromFD;
+                }
+                else
+                {
+                    lastId = lastFromAccount ?? lastFromFD;
+                }
+
+                if (lastId == null)
                 {
                     return "FD00001";
                 }
 
-                string lastId = lastAccount.FDAccountID;
                 if (lastId.StartsWith("FD") && lastId.Length == 7)
                 {
                     int numericPart = int.Parse(lastId.Substring(2));
@@ -124,21 +160,38 @@ namespace DB.Utilities
 
         /// <summary>
         /// Generate next Loan Account ID in format: LN + 5 digits (e.g., LN00001)
+        /// Checks both Account and LoanAccount tables to avoid duplicates
         /// </summary>
         public static string GenerateLoanAccountId()
         {
             using (var context = new Banking_DetailsEntities())
             {
-                var lastAccount = context.LoanAccounts
-                    .OrderByDescending(a => a.Ln_accountid)
+                var lastFromAccount = context.Accounts
+                    .Where(a => a.AccountID.StartsWith("LN"))
+                    .OrderByDescending(a => a.AccountID)
+                    .Select(a => a.AccountID)
                     .FirstOrDefault();
 
-                if (lastAccount == null)
+                var lastFromLoan = context.LoanAccounts
+                    .OrderByDescending(a => a.Ln_accountid)
+                    .Select(a => a.Ln_accountid)
+                    .FirstOrDefault();
+
+                string lastId = null;
+                if (lastFromAccount != null && lastFromLoan != null)
+                {
+                    lastId = string.Compare(lastFromAccount, lastFromLoan) > 0 ? lastFromAccount : lastFromLoan;
+                }
+                else
+                {
+                    lastId = lastFromAccount ?? lastFromLoan;
+                }
+
+                if (lastId == null)
                 {
                     return "LN00001";
                 }
 
-                string lastId = lastAccount.Ln_accountid;
                 if (lastId.StartsWith("LN") && lastId.Length == 7)
                 {
                     int numericPart = int.Parse(lastId.Substring(2));
@@ -233,6 +286,37 @@ namespace DB.Utilities
         public static bool IsSeniorCitizen(DateTime dateOfBirth)
         {
             return CalculateAge(dateOfBirth) >= 60;
+        }
+
+        /// <summary>
+        /// Generate unique UserID for UserLogin table
+        /// Format: USR + 5 digits (e.g., USR00001, USR00002)
+        /// This is different from ReferenceID (Customer/Employee/Manager ID)
+        /// </summary>
+        public static string GenerateUserId()
+        {
+            using (var context = new Banking_DetailsEntities())
+            {
+                var lastUser = context.UserLogins
+                    .Where(u => u.UserID.StartsWith("USR"))
+                    .OrderByDescending(u => u.UserID)
+                    .FirstOrDefault();
+
+                if (lastUser == null)
+                {
+                    return "USR00001";
+                }
+
+                string lastId = lastUser.UserID;
+                if (lastId.StartsWith("USR") && lastId.Length == 8)
+                {
+                    int numericPart = int.Parse(lastId.Substring(3));
+                    int nextNumber = numericPart + 1;
+                    return $"USR{nextNumber:D5}";
+                }
+
+                return "USR00001";
+            }
         }
     }
 }

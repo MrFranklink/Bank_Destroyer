@@ -11,10 +11,12 @@ namespace Bank_App.Controllers
     public class AuthController : Controller
     {
         private readonly AuthService _authService;
+        private readonly EmployeeService _employeeService;
 
         public AuthController()
         {
             _authService = new AuthService();
+            _employeeService = new EmployeeService();
         }
 
         // GET: Auth/Login
@@ -35,6 +37,13 @@ namespace Bank_App.Controllers
                 Session["UserName"] = result.UserName;
                 Session["Role"] = result.Role;
                 Session["ReferenceID"] = result.ReferenceID;
+
+                // Store Department ID for employees
+                if (result.Role.ToUpper() == "EMPLOYEE")
+                {
+                    var employee = _employeeService.GetEmployeeById(result.ReferenceID);
+                    Session["DeptId"] = employee?.DeptId ?? "UNKNOWN";
+                }
 
                 FormsAuthentication.SetAuthCookie(result.UserName, false);
 

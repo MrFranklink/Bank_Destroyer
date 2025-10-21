@@ -98,5 +98,46 @@ namespace DB
                 return 0;
             }
         }
+
+        /// <summary>
+        /// Check if PAN number already exists in the system
+        /// PAN should be unique across all customers
+        /// </summary>
+        /// <param name="pan">PAN number to check</param>
+        /// <returns>True if PAN already exists</returns>
+        public bool PanExists(string pan)
+        {
+            try
+            {
+                using (var context = new Banking_DetailsEntities())
+                {
+                    return context.Customers.Any(c => c.Pan == pan);
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get customer by PAN number
+        /// </summary>
+        /// <param name="pan">PAN number</param>
+        /// <returns>Customer with matching PAN</returns>
+        public Customer GetCustomerByPan(string pan)
+        {
+            try
+            {
+                using (var context = new Banking_DetailsEntities())
+                {
+                    return context.Customers.FirstOrDefault(c => c.Pan == pan);
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-@using BankApp.Services
-@using DB
+﻿@using BankApp.Services
 @{
     ViewBag.Title = "Manager Dashboard";
     Layout = "~/Views/Shared/Template.cshtml";
@@ -146,6 +145,10 @@
         background: var(--danger-gradient);
     }
 
+    .btn-info {
+        background: var(--info-gradient);
+    }
+
     .btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 7px 20px rgba(0,0,0,0.2);
@@ -234,6 +237,11 @@
                 <p class="mb-1"><strong>User ID:</strong> @ViewBag.UserID</p>
                 <p class="mb-1"><strong>Manager ID:</strong> @ViewBag.ReferenceID</p>
                 <span class="badge bg-light text-dark">@ViewBag.Role</span>
+                <div class="mt-2">
+                    <a href="@Url.Action("ChangePassword", "Dashboard")" class="btn btn-warning btn-sm me-2">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -326,6 +334,11 @@
         <li class="nav-item">
             <button class="nav-link" data-bs-toggle="tab" data-bs-target="#open-accounts">
                 <i class="bi bi-bank2"></i> Open Accounts
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#transactions">
+                <i class="bi bi-currency-rupee"></i> Transactions
             </button>
         </li>
         <li class="nav-item">
@@ -543,6 +556,83 @@
             </div>
         </div>
 
+        <!-- TRANSACTIONS TAB -->
+        <div class="tab-pane fade" id="transactions">
+            <h5 class="mb-4"><i class="bi bi-currency-rupee text-primary"></i> Process Transactions</h5>
+            
+            <ul class="nav nav-pills mb-4">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#deposit-money">
+                        <i class="bi bi-plus-circle"></i> Deposit
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#withdraw-money">
+                        <i class="bi bi-dash-circle"></i> Withdraw
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Deposit Tab -->
+                <div class="tab-pane fade show active" id="deposit-money">
+                    <div class="alert alert-info">
+                        <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Minimum deposit: Rs. 100</li>
+                            <li>Only for Savings Accounts</li>
+                            <li>Transaction is recorded instantly</li>
+                        </ul>
+                    </div>
+                    <form method="post" action="@Url.Action("Deposit", "Dashboard")">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Savings Account ID *</label>
+                                <input name="accountId" class="form-control" placeholder="e.g., SB00001" required />
+                                <small class="text-muted">Enter Savings Account ID</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Deposit Amount (Rs.) *</label>
+                                <input name="amount" type="number" step="0.01" min="100" class="form-control" placeholder="Minimum Rs. 100" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success mt-3">
+                            <i class="bi bi-check-circle"></i> Process Deposit
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Withdraw Tab -->
+                <div class="tab-pane fade" id="withdraw-money">
+                    <div class="alert alert-info">
+                        <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Minimum withdrawal: Rs. 100</li>
+                            <li>Minimum balance: Rs. 1,000 must be maintained</li>
+                            <li>Only for Savings Accounts</li>
+                            <li>Transaction is recorded instantly</li>
+                        </ul>
+                    </div>
+                    <form method="post" action="@Url.Action("Withdraw", "Dashboard")">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Savings Account ID *</label>
+                                <input name="accountId" class="form-control" placeholder="e.g., SB00001" required />
+                                <small class="text-muted">Enter Savings Account ID</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Withdrawal Amount (Rs.) *</label>
+                                <input name="amount" type="number" step="0.01" min="100" class="form-control" placeholder="Minimum Rs. 100" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-danger mt-3">
+                            <i class="bi bi-check-circle"></i> Process Withdrawal
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- MANAGE ACCOUNTS TAB -->
         <div class="tab-pane fade" id="manage-accounts">
             <h5 class="mb-4"><i class="bi bi-folder-open text-primary"></i> Manage Accounts</h5>
@@ -560,9 +650,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (ViewBag.Accounts != null && ((List<Account>)ViewBag.Accounts).Count > 0)
+                        @if (ViewBag.Accounts != null && ((List<AccountDTO>)ViewBag.Accounts).Count > 0)
                         {
-                            foreach (var account in (List<Account>)ViewBag.Accounts)
+                            foreach (var account in (List<AccountDTO>)ViewBag.Accounts)
                             {
                                 <tr>
                                     <td><strong>@account.AccountID</strong></td>
@@ -594,6 +684,12 @@
                                         }
                                     </td>
                                     <td>
+                                        @if (account.AccountType == "SAVING")
+                                        {
+                                            <button type="button" class="btn btn-sm btn-info me-1" onclick="viewTransactionHistory('@account.AccountID')">
+                                                <i class="bi bi-clock-history"></i> View History
+                                            </button>
+                                        }
                                         @if (account.Status == "OPEN")
                                         {
                                             <form method="post" action="@Url.Action("CloseAccount", "Dashboard")" style="display:inline;">
@@ -825,6 +921,63 @@
     </div>
 </div>
 
+<!-- Transaction History Modal -->
+<div class="modal fade" id="transactionHistoryModal" tabindex="-1" aria-labelledby="transactionHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transactionHistoryModalLabel">
+                    <i class="bi bi-clock-history"></i> Transaction History
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="transactionHistoryLoading" class="text-center" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading transaction history...</p>
+                </div>
+                
+                <div id="transactionHistoryError" class="alert alert-danger" style="display: none;">
+                    <i class="bi bi-exclamation-triangle"></i> <span id="transactionHistoryErrorMessage"></span>
+                </div>
+                
+                <div id="transactionHistoryContent">
+                    <div class="mb-3">
+                        <strong>Account ID:</strong> <span id="historyAccountId" class="text-primary"></span>
+                    </div>
+                    
+                    <div class="table-responsive transaction-table">
+                        <table class="table table-hover" id="transactionTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Amount (Rs.)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionTableBody">
+                                <!-- Transactions will be loaded here via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noTransactionsMessage" class="alert alert-info text-center" style="display: none;">
+                        <i class="bi bi-info-circle"></i> No transactions found for this account.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Add animation to stat cards on load
     document.addEventListener('DOMContentLoaded', function() {
@@ -834,5 +987,160 @@
                 card.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s both`;
             }, 100);
         });
+
+        // ===== CONSOLE DEBUG LOGGING =====
+        console.log('%c🔍 BANK APP DEBUG INFORMATION', 'background: #667eea; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
+        
+        @if (TempData["DebugInfo"] != null)
+        {
+            var debugInfo = TempData["DebugInfo"];
+            @:console.group('📊 Open Savings Account Debug');
+            @:console.log('Customer ID:', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("CustomerId").GetValue(debugInfo, null)))');
+            @:console.log('Initial Deposit:', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("InitialDeposit").GetValue(debugInfo, null)))');
+            @:console.log('Opened By (ReferenceID):', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("OpenedBy").GetValue(debugInfo, null)))');
+            @:console.log('Opened By Role:', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("OpenedByRole").GetValue(debugInfo, null)))');
+            @:console.log('Session UserID:', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("SessionUserID").GetValue(debugInfo, null)))');
+            @:console.log('Session UserName:', '@Html.Raw(Json.Encode(debugInfo.GetType().GetProperty("SessionUserName").GetValue(debugInfo, null)))');
+            @:console.groupEnd();
+        }
+
+        @if (TempData["ServiceResult"] != null)
+        {
+            var result = TempData["ServiceResult"];
+            @:console.group('✅ Service Result');
+            @:console.log('Success:', '@Html.Raw(Json.Encode(result.GetType().GetProperty("IsSuccess").GetValue(result, null)))');
+            @:console.log('Message:', '@Html.Raw(Json.Encode(result.GetType().GetProperty("Message").GetValue(result, null)))');
+            @:console.log('Account ID:', '@Html.Raw(Json.Encode(result.GetType().GetProperty("AccountId").GetValue(result, null)))');
+            @:console.log('Balance:', '@Html.Raw(Json.Encode(result.GetType().GetProperty("Balance").GetValue(result, null)))');
+            @:console.groupEnd();
+        }
+
+        @if (TempData["ExceptionDetails"] != null)
+        {
+            var ex = TempData["ExceptionDetails"];
+            @:console.group('%c❌ EXCEPTION DETAILS', 'background: red; color: white; padding: 5px;');
+            @:console.error('Message:', '@Html.Raw(Json.Encode(ex.GetType().GetProperty("Message").GetValue(ex, null)))');
+            @:console.error('Stack Trace:', '@Html.Raw(Json.Encode(ex.GetType().GetProperty("StackTrace").GetValue(ex, null)))');
+            @:console.error('Inner Exception:', '@Html.Raw(Json.Encode(ex.GetType().GetProperty("InnerException").GetValue(ex, null)))');
+            @:console.error('Source:', '@Html.Raw(Json.Encode(ex.GetType().GetProperty("Source").GetValue(ex, null)))');
+            @:console.groupEnd();
+        }
+
+        @if (TempData["ErrorType"] != null)
+        {
+            var errorType = TempData["ErrorType"].ToString();
+            @:console.group('%c⚠️ ERROR TYPE: @errorType', 'background: orange; color: white; padding: 5px;');
+            @:console.warn('Error Type:', '@errorType');
+            
+             if (errorType == "ReferenceIDNull")
+            {
+                @:console.warn('Issue: Manager ReferenceID is NULL in session');
+                @:console.warn('Solution: Run this SQL:');
+                @:console.warn('UPDATE UserLogin SET ReferenceID = \'MGR001\' WHERE Role = \'MANAGER\' AND UserName = \'your_username\'');
+                @:console.warn('Then log out and log back in.');
+            }
+            else if (errorType == "ServiceError")
+            {
+                @:console.warn('Issue: Service layer validation failed');
+                @:console.warn('Check the error message above for details');
+            }
+            
+            @:console.groupEnd();
+        }
+
+        console.log('%c✨ Debug logging complete!', 'color: green; font-weight: bold;');
     });
+    
+    // Function to view transaction history
+    function viewTransactionHistory(accountId) {
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('transactionHistoryModal'));
+        
+        // Set account ID in modal
+        document.getElementById('historyAccountId').textContent = accountId;
+        
+        // Show loading spinner
+        document.getElementById('transactionHistoryLoading').style.display = 'block';
+        document.getElementById('transactionHistoryError').style.display = 'none';
+        document.getElementById('transactionHistoryContent').style.display = 'none';
+        document.getElementById('noTransactionsMessage').style.display = 'none';
+        
+        modal.show();
+        
+        // Fetch transaction history via AJAX
+        fetch('@Url.Action("GetTransactionHistory", "Dashboard")?accountId=' + encodeURIComponent(accountId), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide loading spinner
+            document.getElementById('transactionHistoryLoading').style.display = 'none';
+            document.getElementById('transactionHistoryContent').style.display = 'block';
+            
+            if (data.success) {
+                const transactions = data.data;
+                const tbody = document.getElementById('transactionTableBody');
+                tbody.innerHTML = ''; // Clear existing rows
+                
+                if (transactions && transactions.length > 0) {
+                    transactions.forEach((transaction, index) => {
+                        const row = tbody.insertRow();
+                        
+                        // Serial number
+                        const cell1 = row.insertCell(0);
+                        cell1.textContent = index + 1;
+                        
+                        // Date
+                        const cell2 = row.insertCell(1);
+                        const date = transaction.Transationdate ? new Date(transaction.Transationdate) : null;
+                        cell2.textContent = date ? date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+                        
+                        // Type
+                        const cell3 = row.insertCell(2);
+                        const type = transaction.Transactiontype || 'N/A';
+                        if (type.toUpperCase() === 'DEPOSIT') {
+                            cell3.innerHTML = '<span class="badge bg-success"><i class="bi bi-arrow-down-circle"></i> Deposit</span>';
+                        } else if (type.toUpperCase() === 'WITHDRAW') {
+                            cell3.innerHTML = '<span class="badge bg-danger"><i class="bi bi-arrow-up-circle"></i> Withdraw</span>';
+                        } else {
+                            cell3.innerHTML = '<span class="badge bg-secondary">' + type + '</span>';
+                        }
+                        
+                        // Amount
+                        const cell4 = row.insertCell(3);
+                        const amount = transaction.Amount || 0;
+                        cell4.textContent = '₹ ' + amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        if (type.toUpperCase() === 'DEPOSIT') {
+                            cell4.style.color = 'green';
+                            cell4.style.fontWeight = 'bold';
+                        } else if (type.toUpperCase() === 'WITHDRAW') {
+                            cell4.style.color = 'red';
+                            cell4.style.fontWeight = 'bold';
+                        }
+                    });
+                } else {
+                    document.getElementById('noTransactionsMessage').style.display = 'block';
+                }
+            } else {
+                // Show error
+                document.getElementById('transactionHistoryError').style.display = 'block';
+                document.getElementById('transactionHistoryErrorMessage').textContent = data.message || 'Failed to load transaction history';
+                document.getElementById('transactionHistoryContent').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            // Hide loading spinner
+            document.getElementById('transactionHistoryLoading').style.display = 'none';
+            
+            // Show error
+            document.getElementById('transactionHistoryError').style.display = 'block';
+            document.getElementById('transactionHistoryErrorMessage').textContent = 'Failed to load transaction history: ' + error.message;
+            document.getElementById('transactionHistoryContent').style.display = 'none';
+            
+            console.error('Error fetching transaction history:', error);
+        });
+    }
 </script>

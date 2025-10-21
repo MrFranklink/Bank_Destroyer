@@ -10,11 +10,13 @@ namespace BankApp.Services
     {
         private readonly EmployeeRepository _employeeRepo;
         private readonly UserLoginRepository _userLoginRepo;
+        private readonly CustomerRepository _customerRepo;
 
         public EmployeeService()
         {
             _employeeRepo = new EmployeeRepository();
             _userLoginRepo = new UserLoginRepository();
+            _customerRepo = new CustomerRepository();
         }
 
         /// <summary>
@@ -27,7 +29,9 @@ namespace BankApp.Services
                 () => string.IsNullOrWhiteSpace(empName) ? Error("Employee Name is required") : null,
                 () => string.IsNullOrWhiteSpace(deptId) ? Error("Department ID is required") : null,
                 () => string.IsNullOrWhiteSpace(pan) ? Error("PAN is required") : null,
-                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be 4 letters followed by 4 digits (e.g., ABCD1234)") : null
+                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be 4 letters followed by 4 digits (e.g., ABCD1234)") : null,
+                () => _employeeRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered with another employee.") : null,
+                () => _customerRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered as a customer. Same person cannot be both customer and employee.") : null
             };
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
@@ -49,9 +53,13 @@ namespace BankApp.Services
                 // Auto-generate username from first name
                 string username = IdGenerator.GenerateUsername(empName.Split(' ')[0]);
 
+                // Generate UNIQUE UserID for login (different from Employee ID)
+                string userId = IdGenerator.GenerateUserId();
+
                 // Create UserLogin with default password
                 string defaultPassword = "Dummy";
-                bool loginCreated = _userLoginRepo.CreateUser(empId, username, defaultPassword, "EMPLOYEE", empId);
+                // UserID = unique login ID, ReferenceID = Employee ID
+                bool loginCreated = _userLoginRepo.CreateUser(userId, username, defaultPassword, "EMPLOYEE", empId);
 
                 if (!loginCreated)
                 {
@@ -77,6 +85,21 @@ namespace BankApp.Services
                 DeptId = e.DeptId,
                 Pan = e.Pan
             }).ToList();
+        }
+
+        public EmployeeDTO GetEmployeeById(string empId)
+        {
+            var employee = _employeeRepo.GetEmployeeById(empId);
+            if (employee == null)
+                return null;
+
+            return new EmployeeDTO
+            {
+                Empid = employee.Empid,
+                EmployeeName = employee.EmployeeName,
+                DeptId = employee.DeptId,
+                Pan = employee.Pan
+            };
         }
 
         public int GetEmployeeCount()

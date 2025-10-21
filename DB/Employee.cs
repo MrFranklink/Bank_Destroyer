@@ -14,19 +14,11 @@ namespace DB
     
     public partial class Employee
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Employee()
-        {
-            this.Accounts = new HashSet<Account>();
-        }
-    
         public string Empid { get; set; }
         public string EmployeeName { get; set; }
         public string DeptId { get; set; }
         public string Pan { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Account> Accounts { get; set; }
         public virtual Department Department { get; set; }
     }
 }

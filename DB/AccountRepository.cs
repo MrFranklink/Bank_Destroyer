@@ -15,9 +15,18 @@ namespace DB
             {
                 using (var context = new Banking_DetailsEntities())
                 {
+                    // Debug logging
+                    System.Diagnostics.Debug.WriteLine("=== CreateAccount Called ===");
+                    System.Diagnostics.Debug.WriteLine($"AccountID: '{accountId}'");
+                    System.Diagnostics.Debug.WriteLine($"AccountType: '{accountType}'");
+                    System.Diagnostics.Debug.WriteLine($"CustomerID: '{customerId}'");
+                    System.Diagnostics.Debug.WriteLine($"OpenedBy: '{openedBy}' (Length: {openedBy?.Length ?? 0})");
+                    System.Diagnostics.Debug.WriteLine($"OpenedByRole: '{openedByRole}' (Length: {openedByRole?.Length ?? 0})");
+                    
                     // Check if account already exists
                     if (context.Accounts.Any(a => a.AccountID == accountId))
                     {
+                        System.Diagnostics.Debug.WriteLine("ERROR: Account already exists");
                         return false;
                     }
 
@@ -34,11 +43,19 @@ namespace DB
 
                     context.Accounts.Add(newAccount);
                     context.SaveChanges();
+                    
+                    System.Diagnostics.Debug.WriteLine("SUCCESS: Account created");
                     return true;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"ERROR: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"INNER: {ex.InnerException.Message}");
+                }
+                System.Diagnostics.Debug.WriteLine($"STACK: {ex.StackTrace}");
                 return false;
             }
         }

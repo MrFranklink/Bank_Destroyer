@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DB.Utilities;
 
 namespace DB
 {
@@ -14,6 +15,15 @@ namespace DB
             {
                 return context.UserLogins
                     .FirstOrDefault(u => u.UserName == username);
+            }
+        }
+
+        public UserLogin GetUserByUserId(string userId)
+        {
+            using (var context = new Banking_DetailsEntities())
+            {
+                return context.UserLogins
+                    .FirstOrDefault(u => u.UserID == userId);
             }
         }
 
@@ -43,12 +53,36 @@ namespace DB
                     {
                         UserID = userId,
                         UserName = userName,
-                        PasswordHash = password, // In production, hash this password! //Remeber This
+                        PasswordHash = PasswordHelper.HashPassword(password), // Hash the password
                         Role = role,
                         ReferenceID = referenceId
                     };
 
                     context.UserLogins.Add(newUser);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Update user password (hashed)
+        /// </summary>
+        public bool UpdatePassword(string userId, string newPassword)
+        {
+            try
+            {
+                using (var context = new Banking_DetailsEntities())
+                {
+                    var user = context.UserLogins.FirstOrDefault(u => u.UserID == userId);
+                    if (user == null)
+                        return false;
+
+                    user.PasswordHash = PasswordHelper.HashPassword(newPassword);
                     context.SaveChanges();
                     return true;
                 }
