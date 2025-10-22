@@ -19,8 +19,10 @@ namespace DB
         {
             this.Accounts = new HashSet<Account>();
             this.FixedDepositAccounts = new HashSet<FixedDepositAccount>();
-            this.LoanAccounts = new HashSet<LoanAccount>();
             this.SavingsAccounts = new HashSet<SavingsAccount>();
+            this.LoanAccounts = new HashSet<LoanAccount>();
+            this.FundTransfers = new HashSet<FundTransfer>();
+            this.FundTransfers1 = new HashSet<FundTransfer>();
         }
     
         public string Custid { get; set; }
@@ -35,8 +37,12 @@ namespace DB
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<FixedDepositAccount> FixedDepositAccounts { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SavingsAccount> SavingsAccounts { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<LoanAccount> LoanAccounts { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SavingsAccount> SavingsAccounts { get; set; }
+        public virtual ICollection<FundTransfer> FundTransfers { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<FundTransfer> FundTransfers1 { get; set; }
     }
 }

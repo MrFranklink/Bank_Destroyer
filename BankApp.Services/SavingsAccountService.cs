@@ -31,7 +31,7 @@ namespace BankApp.Services
             var validationRules = new List<Func<AccountOperationResult>>
             {
                 () => string.IsNullOrWhiteSpace(customerId) ? Error("Customer ID is required") : null,
-                () => !_customerRepo.CustomerExists(customerId) ? Error("Customer not found") : null,
+                () => !_customerRepo.CustomerExists(customerId) ? Error($"Customer ID '{customerId}' not found in the system") : null,
                 () => initialDeposit < 1000 ? Error("Minimum deposit for Savings Account is Rs. 1,000") : null,
                 () => _savingsRepo.CustomerHasSavingsAccount(customerId) ? Error("Customer already has a Savings Account. Only one savings account allowed per customer.") : null
             };

@@ -1,0 +1,898 @@
+@using BankApp.Services
+@{
+    ViewBag.Title = "Employee Dashboard";
+    Layout = "~/Views/Shared/Template.cshtml";
+    string deptId = ViewBag.DeptId?.ToString() ?? "UNKNOWN";
+}
+
+<style>
+    body {
+        background-color: #f0f0f0;
+    }
+
+    .header-box {
+        background-color: @(deptId == "DEPT01" ? "#2196F3" : "#f857a6");
+        color: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid @(deptId == "DEPT01" ? "#1976d2" : "#e91e63");
+    }
+
+    .info-box {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .stat-box {
+        background-color: #e7f3ff;
+        border: 2px solid #2196F3;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: @(deptId == "DEPT01" ? "#2196F3" : "#f857a6");
+        color: white;
+        padding: 10px;
+        text-align: left;
+    }
+
+    td {
+        padding: 8px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-primary {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+
+    .tab-buttons {
+        margin-bottom: 20px;
+    }
+
+    .tab-buttons button {
+        background-color: #ddd;
+        border: 1px solid #ccc;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .tab-buttons button.active {
+        background-color: @(deptId == "DEPT01" ? "#2196F3" : "#f857a6");
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+        color: #856404;
+    }
+
+    .badge {
+        padding: 5px 10px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .badge-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .badge-warning {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .badge-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .dept-badge {
+        background-color: @(deptId == "DEPT01" ? "#2196F3" : "#f857a6");
+        color: white;
+        padding: 5px 15px;
+        font-weight: bold;
+        display: inline-block;
+    }
+
+    .credentials-box {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="container" style="margin-top: 20px;">
+    <!-- Header -->
+    <div class="header-box">
+        <h2>Employee Dashboard - <span class="dept-badge">@deptId</span></h2>
+        <p>@(deptId == "DEPT01" ? "Deposit Management" : deptId == "DEPT02" ? "Loan Management" : "HR Department")</p>
+        <p>Welcome, @ViewBag.UserName!</p>
+        <p><strong>User ID:</strong> @ViewBag.UserID | <strong>Employee ID:</strong> @ViewBag.ReferenceID</p>
+        <a href="@Url.Action("ChangePassword", "Dashboard")" class="btn btn-warning">Change Password</a>
+        <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger">Logout</a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ShowCredentials"] != null && TempData["ShowCredentials"].ToString() == "True")
+    {
+        <div class="credentials-box">
+            <h5>@TempData["CredentialsTitle"]</h5>
+            <p><strong>ID:</strong> @TempData["CredentialsId"]</p>
+            <p><strong>Username:</strong> @TempData["CredentialsUsername"]</p>
+            <p><strong>Password:</strong> @TempData["CredentialsPassword"]</p>
+            <p><em>Please save these credentials securely!</em></p>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Statistics -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="stat-box">
+                <h3>@(ViewBag.CustomerCount ?? 0)</h3>
+                <p>Total Customers</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-box">
+                <h3>@(ViewBag.Accounts != null ? ((List<AccountDTO>)ViewBag.Accounts).Count : 0)</h3>
+                <p>Total Accounts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department-Specific Tabs -->
+    @if (deptId == "DEPT01")
+    {
+        <!-- DEPT01: Deposit Management - NO EMPLOYEE REGISTRATION -->
+        <div class="tab-buttons">
+            <button class="active" onclick="openTab(event, 'register-customer')">Register Customer</button>
+            <button onclick="openTab(event, 'open-savings')">Open Savings</button>
+            <button onclick="openTab(event, 'open-fd')">Open FD</button>
+            <button onclick="openTab(event, 'process-deposit')">Process Deposit</button>
+            <button onclick="openTab(event, 'manage-accounts')">Manage Accounts</button>
+            <button onclick="openTab(event, 'customer-list')">Customer List</button>
+        </div>
+
+        <!-- Register Customer -->
+        <div id="register-customer" class="tab-content active">
+            <div class="info-box">
+                <h3>Register New Customer</h3>
+                <div class="alert alert-info">Customer ID and login credentials will be auto-generated</div>
+                
+                <form method="post" action="@Url.Action("RegisterCustomer", "Dashboard")" id="registerCustomerFormDept01">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Customer Name *</label>
+                                <input name="custName" 
+                                       placeholder="Enter full name" 
+                                       minlength="3" 
+                                       maxlength="50" 
+                                       pattern="[a-zA-Z\s.]+" 
+                                       title="Only letters, spaces, and dots allowed"
+                                       required />
+                                <small>Min 3 characters, only letters and spaces</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date of Birth *</label>
+                                <input name="dob" 
+                                       type="date" 
+                                       max="@DateTime.Now.AddYears(-18).ToString("yyyy-MM-dd")"
+                                       min="@DateTime.Now.AddYears(-100).ToString("yyyy-MM-dd")"
+                                       required />
+                                <small>Must be 18-100 years old</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>PAN Number *</label>
+                                <input name="pan" 
+                                       placeholder="e.g., ABCDE1234F" 
+                                       maxlength="10" 
+                                       pattern="[A-Z]{5}[0-9]{4}[A-Z]" 
+                                       style="text-transform: uppercase;" 
+                                       title="Format: 5 letters + 4 digits + 1 letter"
+                                       required />
+                                <small>Format: 5 letters + 4 digits + 1 letter</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <input name="phone" 
+                                       placeholder="e.g., 9876543210" 
+                                       maxlength="10" 
+                                       pattern="[6-9][0-9]{9}"
+                                       title="10-digit mobile number starting with 6, 7, 8, or 9"
+                                       required />
+                                <small>10 digits starting with 6, 7, 8, or 9</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address *</label>
+                        <textarea name="address" 
+                                  placeholder="Enter complete address" 
+                                  minlength="10"
+                                  maxlength="100" 
+                                  rows="2" 
+                                  style="width:100%; padding:8px; border:1px solid #ccc;"
+                                  required></textarea>
+                        <small>Min 10 characters, Max 100 characters</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Register Customer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Open Savings -->
+        <div id="open-savings" class="tab-content">
+            <div class="info-box">
+                <h3>Open Savings Account</h3>
+                <div class="alert alert-info">
+                    <strong>Business Rules:</strong>
+                    <ul>
+                        <li>Minimum deposit: Rs. 1,000</li>
+                        <li>One account per customer</li>
+                    </ul>
+                </div>
+                <form method="post" action="@Url.Action("OpenSavingsAccount", "Dashboard")">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Customer ID *</label>
+                                <input name="customerId" 
+                                       placeholder="e.g., MLA00001" 
+                                       pattern="MLA[0-9]{5}"
+                                       title="Format: MLA followed by 5 digits (e.g., MLA00001)"
+                                       maxlength="8"
+                                       style="text-transform: uppercase;"
+                                       required />
+                                <small>Format: MLA00001</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Initial Deposit (Rs.) *</label>
+                                <input name="initialDeposit" 
+                                       type="number" 
+                                       step="0.01" 
+                                       min="1000"
+                                       placeholder="Minimum Rs. 1,000"
+                                       required />
+                                <small>Minimum: Rs. 1,000</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Open Savings Account</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Open FD -->
+        <div id="open-fd" class="tab-content">
+            <div class="info-box">
+                <h3>Open Fixed Deposit</h3>
+                <div class="alert alert-info">
+                    <strong>Business Rules:</strong>
+                    <ul>
+                        <li>Minimum: Rs. 10,000</li>
+                        <li>Interest: 6% (?1yr), 7% (1-2yr), 8% (>2yr)</li>
+                        <li>Senior citizens: +0.5% bonus</li>
+                    </ul>
+                </div>
+                <form method="post" action="@Url.Action("OpenFixedDepositAccount", "Dashboard")">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Customer ID *</label>
+                                <input name="customerId" 
+                                       placeholder="e.g., MLA00001" 
+                                       pattern="MLA[0-9]{5}"
+                                       title="Format: MLA followed by 5 digits"
+                                       maxlength="8"
+                                       style="text-transform: uppercase;"
+                                       required />
+                                <small>Format: MLA00001</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Amount (Rs.) *</label>
+                                <input name="amount" 
+                                       type="number" 
+                                       step="0.01" 
+                                       min="10000"
+                                       placeholder="Minimum Rs. 10,000"
+                                       required />
+                                <small>Minimum: Rs. 10,000</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Start Date *</label>
+                                <input name="startDate" 
+                                       type="date" 
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                       required />
+                                <small>Today or future date only</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Tenure (Months) *</label>
+                                <input name="tenureMonths" 
+                                       type="number" 
+                                       min="1"
+                                       max="360"
+                                       placeholder="1 to 360 months"
+                                       required />
+                                <small>1 to 360 months (30 years)</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Open Fixed Deposit</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Process Deposit -->
+        <div id="process-deposit" class="tab-content">
+            <div class="info-box">
+                <h3>Process Deposit</h3>
+                <div class="alert alert-info">
+                    <strong>Business Rules:</strong>
+                    <ul>
+                        <li>Minimum deposit: Rs. 100</li>
+                        <li>Only for Savings Accounts</li>
+                    </ul>
+                </div>
+                <form method="post" action="@Url.Action("Deposit", "Dashboard")">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Savings Account ID *</label>
+                                <input name="accountId" placeholder="e.g., SB00001" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Deposit Amount (Rs.) *</label>
+                                <input name="amount" type="number" step="0.01" min="100" required />
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Process Deposit</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Manage Accounts -->
+        <div id="manage-accounts" class="tab-content">
+            <div class="info-box">
+                <h3>Manage Accounts (Savings & FD Only)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Type</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Accounts != null)
+                        {
+                            var allowedAccounts = ((List<AccountDTO>)ViewBag.Accounts).Where(a => a.AccountType == "SAVING" || a.AccountType == "FIXED-DEPOSIT").ToList();
+                            if (allowedAccounts.Count > 0)
+                            {
+                                foreach (var account in allowedAccounts)
+                                {
+                                    <tr>
+                                        <td><strong>@account.AccountID</strong></td>
+                                        <td>
+                                            @if (account.AccountType == "SAVING")
+                                            {
+                                                <span class="badge badge-success">Savings</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-info">FD</span>
+                                            }
+                                        </td>
+                                        <td>@account.CustomerID</td>
+                                        <td>@account.OpenDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (account.Status == "OPEN")
+                                            {
+                                                <span class="badge badge-success">Open</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary">Closed</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (account.Status == "OPEN")
+                                            {
+                                                <form method="post" action="@Url.Action("CloseAccount", "Dashboard")" style="display:inline;">
+                                                    <input type="hidden" name="accountId" value="@account.AccountID" />
+                                                    <input type="hidden" name="accountType" value="@account.AccountType" />
+                                                    <button type="submit" class="btn btn-danger" style="padding:5px 10px;" onclick="return confirm('Close this account?');">Close</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" style="text-align:center;">No Savings/FD accounts found</td></tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="6" style="text-align:center;">No accounts found</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customer List -->
+        <div id="customer-list" class="tab-content">
+            <div class="info-box">
+                <h3>Customer List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>PAN</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Customers != null && ((List<CustomerDTO>)ViewBag.Customers).Count > 0)
+                        {
+                            foreach (var customer in (List<CustomerDTO>)ViewBag.Customers)
+                            {
+                                <tr>
+                                    <td><strong>@customer.Custid</strong></td>
+                                    <td>@customer.Custname</td>
+                                    <td>@customer.Pan</td>
+                                    <td>@customer.PhoneNumber</td>
+                                    <td>@(customer.DOB?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" style="text-align:center;">No customers found</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else if (deptId == "DEPT02")
+    {
+        <!-- DEPT02: Loan Management - NO EMPLOYEE REGISTRATION -->
+        <div class="tab-buttons">
+            <button class="active" onclick="openTab(event, 'register-customer')">Register Customer</button>
+            <button onclick="openTab(event, 'open-loan')">Open Loan</button>
+            <button onclick="openTab(event, 'manage-loans')">Manage Loans</button>
+            <button onclick="openTab(event, 'customer-list')">Customer List</button>
+        </div>
+
+        <!-- Register Customer -->
+        <div id="register-customer" class="tab-content active">
+            <div class="info-box">
+                <h3>Register New Customer</h3>
+                <div class="alert alert-info">Customer ID and login credentials will be auto-generated</div>
+                
+                <form method="post" action="@Url.Action("RegisterCustomer", "Dashboard")" id="registerCustomerFormDept02">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Customer Name *</label>
+                                <input name="custName" 
+                                       placeholder="Enter full name" 
+                                       minlength="3" 
+                                       maxlength="50" 
+                                       pattern="[a-zA-Z\s.]+" 
+                                       title="Only letters, spaces, and dots allowed"
+                                       required />
+                                <small>Min 3 characters, only letters and spaces</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Date of Birth *</label>
+                                <input name="dob" 
+                                       type="date" 
+                                       max="@DateTime.Now.AddYears(-18).ToString("yyyy-MM-dd")"
+                                       min="@DateTime.Now.AddYears(-100).ToString("yyyy-MM-dd")"
+                                       required />
+                                <small>Must be 18-100 years old</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>PAN Number *</label>
+                                <input name="pan" 
+                                       placeholder="e.g., ABCDE1234F" 
+                                       maxlength="10" 
+                                       pattern="[A-Z]{5}[0-9]{4}[A-Z]" 
+                                       style="text-transform: uppercase;" 
+                                       title="Format: 5 letters + 4 digits + 1 letter"
+                                       required />
+                                <small>Format: 5 letters + 4 digits + 1 letter</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <input name="phone" 
+                                       placeholder="e.g., 9876543210" 
+                                       maxlength="10" 
+                                       pattern="[6-9][0-9]{9}"
+                                       title="10-digit mobile number starting with 6, 7, 8, or 9"
+                                       required />
+                                <small>10 digits starting with 6, 7, 8, or 9</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address *</label>
+                        <textarea name="address" 
+                                  placeholder="Enter complete address" 
+                                  minlength="10"
+                                  maxlength="100" 
+                                  rows="2" 
+                                  style="width:100%; padding:8px; border:1px solid #ccc;"
+                                  required></textarea>
+                        <small>Min 10 characters, Max 100 characters</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Register Customer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Open Loan -->
+        <div id="open-loan" class="tab-content">
+            <div class="info-box">
+                <h3>Open Loan Account</h3>
+                <div class="alert alert-info">
+                    <strong>Business Rules:</strong>
+                    <ul>
+                        <li>Minimum: Rs. 10,000</li>
+                        <li>Interest: 10% (?5L), 9.5% (5-10L), 9% (>10L)</li>
+                        <li>EMI ? 60% of salary</li>
+                        <li>Senior: max Rs. 1L, 9.5%</li>
+                    </ul>
+                </div>
+                <form method="post" action="@Url.Action("OpenLoanAccount", "Dashboard")">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Customer ID *</label>
+                                <input name="customerId" 
+                                       placeholder="e.g., MLA00001" 
+                                       pattern="MLA[0-9]{5}"
+                                       title="Format: MLA followed by 5 digits"
+                                       maxlength="8"
+                                       style="text-transform: uppercase;"
+                                       required />
+                                <small>Format: MLA00001</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Loan Amount (Rs.) *</label>
+                                <input name="loanAmount" 
+                                       type="number" 
+                                       step="0.01" 
+                                       min="10000"
+                                       placeholder="Minimum Rs. 10,000"
+                                       required />
+                                <small>Minimum: Rs. 10,000</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Start Date *</label>
+                                <input name="startDate" 
+                                       type="date" 
+                                       min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                       required />
+                                <small>Today or future</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Tenure (Months) *</label>
+                                <input name="tenureMonths" 
+                                       type="number" 
+                                       min="1"
+                                       max="360"
+                                       placeholder="1 to 360 months"
+                                       required />
+                                <small>1 to 360 months</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Monthly Salary (Rs.) *</label>
+                                <input name="monthlySalary" 
+                                       type="number" 
+                                       step="0.01" 
+                                       min="1000"
+                                       placeholder="Minimum Rs. 1,000"
+                                       required />
+                                <small>For EMI calculation</small>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sanction Loan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Manage Loans -->
+        <div id="manage-loans" class="tab-content">
+            <div class="info-box">
+                <h3>Manage Loan Accounts</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Account ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Accounts != null)
+                        {
+                            var loanAccounts = ((List<AccountDTO>)ViewBag.Accounts).Where(a => a.AccountType == "LOAN").ToList();
+                            if (loanAccounts.Count > 0)
+                            {
+                                foreach (var account in loanAccounts)
+                                {
+                                    <tr>
+                                        <td><strong>@account.AccountID</strong></td>
+                                        <td>@account.CustomerID</td>
+                                        <td>@account.OpenDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (account.Status == "OPEN")
+                                            {
+                                                <span class="badge badge-success">Open</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary">Closed</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (account.Status == "OPEN")
+                                            {
+                                                <form method="post" action="@Url.Action("CloseAccount", "Dashboard")" style="display:inline;">
+                                                    <input type="hidden" name="accountId" value="@account.AccountID" />
+                                                    <input type="hidden" name="accountType" value="@account.AccountType" />
+                                                    <button type="submit" class="btn btn-danger" style="padding:5px 10px;" onclick="return confirm('Close this loan?');">Close</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="5" style="text-align:center;">No loan accounts found</td></tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" style="text-align:center;">No accounts found</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customer List -->
+        <div id="customer-list" class="tab-content">
+            <div class="info-box">
+                <h3>Customer List</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>PAN</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.Customers != null && ((List<CustomerDTO>)ViewBag.Customers).Count > 0)
+                        {
+                            foreach (var customer in (List<CustomerDTO>)ViewBag.Customers)
+                            {
+                                <tr>
+                                    <td><strong>@customer.Custid</strong></td>
+                                    <td>@customer.Custname</td>
+                                    <td>@customer.Pan</td>
+                                    <td>@customer.PhoneNumber</td>
+                                    <td>@(customer.DOB?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" style="text-align:center;">No customers found</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <strong>Unknown Department!</strong> Please contact administrator.
+        </div>
+    }
+</div>
+
+<script>
+    // Tab functionality
+    function openTab(evt, tabName) {
+        var i, tabcontent, tabbuttons;
+        
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        
+        tabbuttons = document.querySelectorAll(".tab-buttons button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+        }
+        
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+</script>

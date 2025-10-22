@@ -31,9 +31,11 @@ namespace BankApp.Services
             var validationRules = new List<Func<AccountOperationResult>>
             {
                 () => string.IsNullOrWhiteSpace(customerId) ? Error("Customer ID is required") : null,
-                () => !_customerRepo.CustomerExists(customerId) ? Error("Customer not found") : null,
+                () => !_customerRepo.CustomerExists(customerId) ? Error($"Customer ID '{customerId}' not found in the system") : null,
                 () => amount < 10000 ? Error("Minimum deposit for Fixed Deposit is Rs. 10,000") : null,
-                () => tenureMonths <= 0 ? Error("Tenure must be greater than 0 months") : null
+                () => startDate.Date < DateTime.Now.Date ? Error("Start date cannot be in the past. Please select today or a future date.") : null,
+                () => tenureMonths <= 0 ? Error("Tenure must be greater than 0 months") : null,
+                () => tenureMonths > 360 ? Error("Maximum tenure is 360 months (30 years)") : null
             };
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);

@@ -27,13 +27,41 @@ namespace DB
                     };
 
                     context.Employees.Add(newEmployee);
-                    context.SaveChanges();
-                    return true;
+                    
+                    // Try to save and catch validation errors
+                    try
+                    {
+                        context.SaveChanges();
+                        return true;
+                    }
+                    catch (System.Data.Entity.Validation.DbEntityValidationException validationEx)
+                    {
+                        // Build detailed error message
+                        var errorMessages = new System.Text.StringBuilder();
+                        errorMessages.AppendLine("Entity Framework Validation Errors:");
+                        
+                        foreach (var validationErrors in validationEx.EntityValidationErrors)
+                        {
+                            foreach (var validationError in validationErrors.ValidationErrors)
+                            {
+                                errorMessages.AppendLine($"  - Property: {validationError.PropertyName}, Error: {validationError.ErrorMessage}");
+                                System.Diagnostics.Debug.WriteLine($"VALIDATION ERROR: {validationError.PropertyName} - {validationError.ErrorMessage}");
+                            }
+                        }
+                        
+                        throw new Exception(errorMessages.ToString());
+                    }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return false;
+                // Log the actual exception for debugging
+                System.Diagnostics.Debug.WriteLine($"ERROR in CreateEmployee: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException?.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                
+                // Re-throw the exception so we can see it
+                throw new Exception($"Failed to create employee: {ex.Message}", ex);
             }
         }
 

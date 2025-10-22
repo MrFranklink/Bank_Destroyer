@@ -29,13 +29,55 @@ namespace DB
                     };
 
                     context.LoanAccounts.Add(newLoanAccount);
+                    
+                    // Log before save
+                    System.Diagnostics.Debug.WriteLine($"=== Saving LoanAccount ===");
+                    System.Diagnostics.Debug.WriteLine($"Ln_accountid: {lnAccountId}");
+                    System.Diagnostics.Debug.WriteLine($"Customer: {customerId}");
+                    System.Diagnostics.Debug.WriteLine($"loan_amount: {loanAmount}");
+                    System.Diagnostics.Debug.WriteLine($"Start_date: {startDate}");
+                    System.Diagnostics.Debug.WriteLine($"Tenure: {tenure}");
+                    System.Diagnostics.Debug.WriteLine($"Ln_roi: {lnRoi}");
+                    System.Diagnostics.Debug.WriteLine($"Emi: {emi}");
+                    
                     context.SaveChanges();
+                    
+                    System.Diagnostics.Debug.WriteLine("SUCCESS: LoanAccount saved");
                     return true;
                 }
             }
-            catch
+            catch (System.Data.Entity.Validation.DbEntityValidationException validationEx)
             {
-                return false;
+                System.Diagnostics.Debug.WriteLine("=== Entity Validation Error in LoanAccount ===");
+                foreach (var validationErrors in validationEx.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Property: {validationError.PropertyName}, Error: {validationError.ErrorMessage}");
+                    }
+                }
+                throw;
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateException dbEx)
+            {
+                System.Diagnostics.Debug.WriteLine("=== Database Update Error in LoanAccount ===");
+                System.Diagnostics.Debug.WriteLine($"Error: {dbEx.Message}");
+                if (dbEx.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner: {dbEx.InnerException.Message}");
+                    if (dbEx.InnerException.InnerException != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Inner Inner: {dbEx.InnerException.InnerException.Message}");
+                    }
+                }
+                throw;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"=== General Error in CreateLoanAccount ===");
+                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw;
             }
         }
 

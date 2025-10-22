@@ -1,0 +1,598 @@
+@using BankApp.Services
+@{
+    ViewBag.Title = "Customer Dashboard";
+    Layout = "~/Views/Shared/Template.cshtml";
+}
+
+<style>
+    body {
+        background-color: #f0f0f0;
+    }
+
+    .header-box {
+        background-color: #4CAF50;
+        color: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #45a049;
+    }
+
+    .info-box {
+        background-color: white;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .stat-box {
+        background-color: #e7f3ff;
+        border: 2px solid #2196F3;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .account-box {
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .savings-box {
+        border-left: 4px solid green;
+    }
+
+    .fd-box {
+        border-left: 4px solid blue;
+    }
+
+    .loan-box {
+        border-left: 4px solid orange;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        text-align: left;
+    }
+
+    td {
+        padding: 8px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+        border: none;
+        border-radius: 3px;
+    }
+
+    .btn-primary {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #ff9800;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+
+    .tab-buttons {
+        margin-bottom: 20px;
+    }
+
+    .tab-buttons button {
+        background-color: #ddd;
+        border: 1px solid #ccc;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .tab-buttons button.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-color: #bee5eb;
+        color: #0c5460;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+        color: #856404;
+    }
+</style>
+
+<div class="container" style="margin-top: 20px;">
+    <!-- Header -->
+    <div class="header-box">
+        <h2>Welcome, @ViewBag.UserName!</h2>
+        <p>Customer Dashboard</p>
+        <p><strong>User ID:</strong> @ViewBag.UserID | <strong>Customer ID:</strong> @ViewBag.ReferenceID</p>
+        <a href="@Url.Action("ChangePassword", "Dashboard")" class="btn btn-warning">Change Password</a>
+        <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger">Logout</a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Statistics -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="stat-box">
+                <h3>Rs. @((ViewBag.SavingsBalance ?? 0m).ToString("N2"))</h3>
+                <p>Savings Balance</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <h3>@(ViewBag.TransactionCount ?? 0)</h3>
+                <p>Total Transactions</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box">
+                <h3>@(ViewBag.TotalAccounts ?? 0)</h3>
+                <p>Active Accounts</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-buttons">
+        <button class="active" onclick="openTab(event, 'overview')">Overview</button>
+        <button onclick="openTab(event, 'profile')">My Profile</button>
+        <button onclick="openTab(event, 'accounts')">My Accounts</button>
+        <button onclick="openTab(event, 'transactions')">Deposit/Withdraw</button>
+        <button onclick="openTab(event, 'history')">Transaction History</button>
+    </div>
+
+    <!-- Tab Content -->
+    
+    <!-- OVERVIEW TAB -->
+    <div id="overview" class="tab-content active">
+        <div class="info-box">
+            <h3>Quick Overview</h3>
+            
+            <table>
+                <tr>
+                    <td><strong>Account Holder:</strong></td>
+                    <td>@ViewBag.UserName</td>
+                </tr>
+                <tr>
+                    <td><strong>Customer ID:</strong></td>
+                    <td>@ViewBag.ReferenceID</td>
+                </tr>
+                <tr>
+                    <td><strong>Savings Accounts:</strong></td>
+                    <td>@(ViewBag.CustomerAccounts != null ? ((List<AccountDTO>)ViewBag.CustomerAccounts).Count(a => a.AccountType == "SAVING" && a.Status == "OPEN") : 0)</td>
+                </tr>
+                <tr>
+                    <td><strong>Fixed Deposits:</strong></td>
+                    <td>@(ViewBag.TotalFDAccounts ?? 0)</td>
+                </tr>
+                <tr>
+                    <td><strong>Active Loans:</strong></td>
+                    <td>@(ViewBag.TotalLoanAccounts ?? 0)</td>
+                </tr>
+            </table>
+
+            <div class="alert alert-info" style="margin-top: 20px;">
+                <strong>Need Help?</strong> Contact customer support at 1800-XXX-XXXX
+            </div>
+        </div>
+    </div>
+
+    <!-- MY PROFILE TAB -->
+    <div id="profile" class="tab-content">
+        <div class="info-box">
+            <h3>Personal Information</h3>
+            
+            @if (ViewBag.CustomerProfile != null)
+            {
+                var profile = (CustomerProfileDTO)ViewBag.CustomerProfile;
+                
+                <table>
+                    <tr>
+                        <td><strong>Customer Name:</strong></td>
+                        <td>@profile.Custname</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer ID:</strong></td>
+                        <td>@profile.Custid</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date of Birth:</strong></td>
+                        <td>@(profile.DOB?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PAN Number:</strong></td>
+                        <td>@profile.Pan</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phone Number:</strong></td>
+                        <td>@(profile.PhoneNumber ?? "Not Provided")</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Address:</strong></td>
+                        <td>@(profile.Address ?? "Not Provided")</td>
+                    </tr>
+                </table>
+
+                <div class="alert alert-warning" style="margin-top: 20px;">
+                    <strong>Note:</strong> To update your profile, please visit your nearest branch.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- MY ACCOUNTS TAB -->
+    <div id="accounts" class="tab-content">
+        <div class="info-box">
+            <h3>All My Accounts</h3>
+            
+            @if (ViewBag.CustomerAccounts != null && ((List<AccountDTO>)ViewBag.CustomerAccounts).Count > 0)
+            {
+                foreach (var account in (List<AccountDTO>)ViewBag.CustomerAccounts)
+                {
+                    var accountDetails = ((AccountManagementService)new AccountManagementService()).GetAccountDetails(account.AccountID, account.AccountType);
+                    
+                    <div class="account-box @(account.AccountType == "SAVING" ? "savings-box" : account.AccountType == "FIXED-DEPOSIT" ? "fd-box" : "loan-box")">
+                        <h4>@account.AccountID - @account.AccountType (@account.Status)</h4>
+                        
+                        @if (account.AccountType == "SAVING")
+                        {
+                            <p><strong>Current Balance:</strong> Rs. @accountDetails.Balance.ToString("N2")</p>
+                        }
+                        else if (account.AccountType == "FIXED-DEPOSIT")
+                        {
+                            <p><strong>Deposit Amount:</strong> Rs. @accountDetails.Amount.ToString("N2")</p>
+                            <p><strong>Maturity Amount:</strong> Rs. @accountDetails.MaturityAmount.ToString("N2")</p>
+                            <p><strong>Interest Rate:</strong> @accountDetails.InterestRate%</p>
+                            <p><strong>Maturity Date:</strong> @accountDetails.EndDate?.ToString("dd/MM/yyyy")</p>
+                        }
+                        else if (account.AccountType == "LOAN")
+                        {
+                            <p><strong>Loan Amount:</strong> Rs. @accountDetails.LoanAmount.ToString("N2")</p>
+                            <p><strong>Monthly EMI:</strong> Rs. @accountDetails.EMI.ToString("N2")</p>
+                            <p><strong>Interest Rate:</strong> @accountDetails.InterestRate%</p>
+                            <p><strong>Tenure:</strong> @accountDetails.Tenure months</p>
+                        }
+                        
+                        <p><strong>Opened on:</strong> @account.OpenDate.ToString("dd/MM/yyyy")</p>
+                        
+                        @if (account.AccountType == "SAVING" && account.Status == "OPEN")
+                        {
+                            <button class="btn btn-primary" onclick="viewTransactionHistory('@account.AccountID')">View Transaction History</button>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    You don't have any accounts. Please visit your nearest branch.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- DEPOSIT/WITHDRAW TAB -->
+    <div id="transactions" class="tab-content">
+        <div class="info-box">
+            <h3>Deposit / Withdraw Money</h3>
+            
+            @if (ViewBag.CustomerAccounts != null)
+            {
+                var savingsAccount = ((List<AccountDTO>)ViewBag.CustomerAccounts).FirstOrDefault(a => a.AccountType == "SAVING" && a.Status == "OPEN");
+                
+                if (savingsAccount != null)
+                {
+                    var accountDetails = ((AccountManagementService)new AccountManagementService()).GetAccountDetails(savingsAccount.AccountID, savingsAccount.AccountType);
+                    
+                    <div class="account-box savings-box">
+                        <h4>@savingsAccount.AccountID (Active)</h4>
+                        <p><strong>Current Balance:</strong> Rs. @accountDetails.Balance.ToString("N2")</p>
+                        <p><em>Minimum balance: Rs. 1,000</em></p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-box" style="background-color: #e8f5e9;">
+                                <h4>Deposit Money</h4>
+                                <p><strong>Rules:</strong></p>
+                                <ul>
+                                    <li>Minimum deposit: Rs. 100</li>
+                                </ul>
+                                
+                                <form method="post" action="@Url.Action("CustomerDeposit", "Dashboard")">
+                                    <div class="form-group">
+                                        <label>Deposit Amount (Rs.)*</label>
+                                        <input name="amount" type="number" step="0.01" min="100" placeholder="Enter amount" required />
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Deposit Now</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-box" style="background-color: #ffebee;">
+                                <h4>Withdraw Money</h4>
+                                <p><strong>Rules:</strong></p>
+                                <ul>
+                                    <li>Minimum withdrawal: Rs. 100</li>
+                                    <li>Minimum balance Rs. 1,000 must remain</li>
+                                </ul>
+                                
+                                <form method="post" action="@Url.Action("CustomerWithdraw", "Dashboard")">
+                                    <div class="form-group">
+                                        <label>Withdrawal Amount (Rs.)*</label>
+                                        <input name="amount" type="number" step="0.01" min="100" max="@(accountDetails.Balance - 1000)" placeholder="Enter amount" required />
+                                        <small>Maximum: Rs. @((accountDetails.Balance - 1000 > 0 ? accountDetails.Balance - 1000 : 0).ToString("N2"))</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Confirm withdrawal?');">Withdraw Now</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <strong>No Active Savings Account!</strong><br>
+                        You don't have an active savings account. Please visit your nearest branch.
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- TRANSACTION HISTORY TAB -->
+    <div id="history" class="tab-content">
+        <div class="info-box">
+            <h3>Transaction History</h3>
+            
+            @if (ViewBag.CustomerAccounts != null)
+            {
+                var savingsAccounts = ((List<AccountDTO>)ViewBag.CustomerAccounts).Where(a => a.AccountType == "SAVING" && a.Status == "OPEN").ToList();
+                
+                if (savingsAccounts.Any())
+                {
+                    <div class="alert alert-info">
+                        Select an account to view transaction history
+                    </div>
+                    
+                    foreach (var account in savingsAccounts)
+                    {
+                        <div class="account-box savings-box">
+                            <p><strong>Account ID:</strong> @account.AccountID</p>
+                            <button class="btn btn-primary" onclick="viewTransactionHistory('@account.AccountID')">View Transactions</button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        You don't have any active savings accounts.
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Simple Modal for Transaction History -->
+<div id="transactionModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); z-index:1000;">
+    <div style="background-color:white; margin:50px auto; padding:20px; width:80%; max-width:800px; border:1px solid #ccc;">
+        <h3>Transaction History</h3>
+        <p><strong>Account ID:</strong> <span id="modalAccountId"></span></p>
+        
+        <div id="modalLoading" style="display:none; text-align:center;">
+            <p>Loading...</p>
+        </div>
+        
+        <div id="modalError" style="display:none;" class="alert alert-danger"></div>
+        
+        <div id="modalContent">
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount (Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionTableBody">
+                </tbody>
+            </table>
+            <div id="noTransactions" style="display:none;" class="alert alert-info">
+                No transactions found.
+            </div>
+        </div>
+        
+        <button class="btn btn-danger" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script>
+    // Tab functionality
+    function openTab(evt, tabName) {
+        var i, tabcontent, tabbuttons;
+        
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+        }
+        
+        tabbuttons = document.querySelectorAll(".tab-buttons button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+        }
+        
+        document.getElementById(tabName).className += " active";
+        evt.currentTarget.className += " active";
+    }
+
+    // Auto-switch to transactions tab if there's a message
+    @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+    {
+        @:window.addEventListener('load', function() {
+            @:var transactionsBtn = document.querySelector('.tab-buttons button:nth-child(4)');
+            @:if (transactionsBtn) {
+                @:transactionsBtn.click();
+            @:}
+        @:});
+    }
+
+    // Transaction history modal
+    function viewTransactionHistory(accountId) {
+        document.getElementById('modalAccountId').textContent = accountId;
+        document.getElementById('modalLoading').style.display = 'block';
+        document.getElementById('modalError').style.display = 'none';
+        document.getElementById('modalContent').style.display = 'none';
+        document.getElementById('transactionModal').style.display = 'block';
+        
+        fetch('@Url.Action("GetCustomerTransactionHistory", "Dashboard")?accountId=' + accountId)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modalLoading').style.display = 'none';
+                document.getElementById('modalContent').style.display = 'block';
+                
+                if (data.success) {
+                    var tbody = document.getElementById('transactionTableBody');
+                    tbody.innerHTML = '';
+                    
+                    if (data.data && data.data.length > 0) {
+                        document.getElementById('noTransactions').style.display = 'none';
+                        data.data.forEach(function(transaction, index) {
+                            var row = tbody.insertRow();
+                            row.insertCell(0).textContent = index + 1;
+                            
+                            var date = new Date(transaction.Transationdate);
+                            row.insertCell(1).textContent = date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB');
+                            
+                            var typeCell = row.insertCell(2);
+                            typeCell.textContent = transaction.Transactiontype;
+                            if (transaction.Transactiontype === 'DEPOSIT') {
+                                typeCell.style.color = 'green';
+                                typeCell.style.fontWeight = 'bold';
+                            } else {
+                                typeCell.style.color = 'red';
+                                typeCell.style.fontWeight = 'bold';
+                            }
+                            
+                            var amountCell = row.insertCell(3);
+                            amountCell.textContent = 'Rs. ' + transaction.Amount.toFixed(2);
+                            if (transaction.Transactiontype === 'DEPOSIT') {
+                                amountCell.style.color = 'green';
+                            } else {
+                                amountCell.style.color = 'red';
+                            }
+                        });
+                    } else {
+                        document.getElementById('noTransactions').style.display = 'block';
+                    }
+                } else {
+                    document.getElementById('modalError').textContent = data.message || 'Failed to load transactions';
+                    document.getElementById('modalError').style.display = 'block';
+                    document.getElementById('modalContent').style.display = 'none';
+                }
+            })
+            .catch(error => {
+                document.getElementById('modalLoading').style.display = 'none';
+                document.getElementById('modalError').textContent = 'Error: ' + error.message;
+                document.getElementById('modalError').style.display = 'block';
+                document.getElementById('modalContent').style.display = 'none';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('transactionModal').style.display = 'none';
+    }
+</script>

@@ -27,9 +27,9 @@ namespace Bank_App.Controllers
 
         // POST: Auth/Login
         [HttpPost]
-        public ActionResult Login(string id, string password)
+        public ActionResult Login(string username, string password)
         {
-            var result = _authService.ValidateLogin(id, password);
+            var result = _authService.ValidateLogin(username, password);
 
             if (result.IsSuccess)
             {
@@ -51,8 +51,8 @@ namespace Bank_App.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            ViewBag.Error = result.Message;
-            return View();
+            TempData["ErrorMessage"] = result.Message;
+            return RedirectToAction("Login");
         }
 
         // GET: Auth/Register

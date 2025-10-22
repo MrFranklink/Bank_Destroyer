@@ -32,10 +32,13 @@ namespace BankApp.Services
             var validationRules = new List<Func<AccountOperationResult>>
             {
                 () => string.IsNullOrWhiteSpace(customerId) ? Error("Customer ID is required") : null,
-                () => !_customerRepo.CustomerExists(customerId) ? Error("Customer not found") : null,
+                () => !_customerRepo.CustomerExists(customerId) ? Error($"Customer ID '{customerId}' not found in the system") : null,
                 () => loanAmount < 10000 ? Error("Minimum loan amount is Rs. 10,000") : null,
+                () => startDate.Date < DateTime.Now.Date ? Error("Start date cannot be in the past. Please select today or a future date.") : null,
                 () => tenureMonths <= 0 ? Error("Tenure must be greater than 0 months") : null,
-                () => monthlySalary <= 0 ? Error("Monthly salary must be greater than 0") : null
+                () => tenureMonths > 360 ? Error("Maximum tenure is 360 months (30 years)") : null,
+                () => monthlySalary <= 0 ? Error("Monthly salary must be greater than 0") : null,
+                () => monthlySalary < 1000 ? Error("Please enter a valid monthly salary (minimum Rs. 1,000)") : null
             };
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
@@ -200,6 +203,126 @@ namespace BankApp.Services
         public LoanAccount GetAccountDetails(string lnAccountId)
         {
             return _loanRepo.GetLoanAccountById(lnAccountId);
+        }
+
+        /// <summary>
+        /// Pay loan EMI from customer's savings account
+        /// Payment types: EMI (regular), PART_PAYMENT, FULL_CLOSURE
+        /// </summary>
+        public AccountOperationResult PayEMI(string loanAccountId, string customerId, decimal paymentAmount, string paymentType = "EMI")
+        {
+            try
+            {
+                // Get loan account
+                var loanAccount = _loanRepo.GetLoanAccountById(loanAccountId);
+                if (loanAccount == null)
+                {
+                    return Error("Loan account not found");
+                }
+
+                // Verify ownership
+                if (loanAccount.Customer != customerId)
+                {
+                    return Error("This loan account does not belong to you");
+                }
+
+                // Get savings account for payment
+                var savingsRepo = new SavingsAccountRepository();
+                var savingsAccount = savingsRepo.GetSavingsAccountByCustomerId(customerId);
+                if (savingsAccount == null)
+                {
+                    return Error("You don't have a savings account to make payment from");
+                }
+
+                // Check sufficient balance (payment amount + Rs. 1,000 minimum balance)
+                decimal currentBalance = savingsAccount.Balance ?? 0;
+                if (currentBalance - paymentAmount < 1000)
+                {
+                    return Error($"Insufficient balance. You must maintain Rs. 1,000 minimum balance in savings account. Available: Rs. {(currentBalance - 1000 > 0 ? currentBalance - 1000 : 0):N2}");
+                }
+
+                // Get latest outstanding balance
+                var loanTransactionRepo = new LoanTransactionRepository();
+                var lastTransaction = loanTransactionRepo.GetLatestTransaction(loanAccountId);
+                decimal outstanding = lastTransaction?.Outstanding ?? (loanAccount.loan_amount ?? 0);
+
+                // Validate payment amount
+                decimal emi = loanAccount.Emi ?? 0;
+                
+                if (paymentType == "EMI" && paymentAmount < emi)
+                {
+                    return Error($"Regular EMI payment must be at least Rs. {emi:N2}");
+                }
+
+                if (paymentAmount > outstanding)
+                {
+                    return Error($"Payment amount (Rs. {paymentAmount:N2}) exceeds outstanding loan balance (Rs. {outstanding:N2})");
+                }
+
+                // Calculate new outstanding
+                decimal newOutstanding = outstanding - paymentAmount;
+
+                // Execute payment (simple transaction handling)
+                try
+                {
+                    // Deduct from savings account
+                    decimal newSavingsBalance = currentBalance - paymentAmount;
+                    bool savingsUpdated = savingsRepo.UpdateBalance(savingsAccount.SBAccountID, newSavingsBalance);
+                    if (!savingsUpdated)
+                    {
+                        return Error("Failed to deduct payment from savings account");
+                    }
+
+                    // Record loan payment
+                    bool paymentRecorded = loanTransactionRepo.CreateLoanTransaction(
+                        loanAccountId,
+                        paymentAmount,
+                        newOutstanding,
+                        paymentType,
+                        customerId
+                    );
+
+                    if (!paymentRecorded)
+                    {
+                        // Rollback savings
+                        savingsRepo.UpdateBalance(savingsAccount.SBAccountID, currentBalance);
+                        return Error("Failed to record loan payment");
+                    }
+
+                    // Record savings transaction
+                    var savingsTransactionRepo = new SavingsTransactionRepository();
+                    savingsTransactionRepo.CreateTransaction(savingsAccount.SBAccountID, "LOAN_PAYMENT", paymentAmount);
+
+                    // If fully paid, close the loan account
+                    if (newOutstanding == 0)
+                    {
+                        var accountRepo = new AccountRepository();
+                        accountRepo.CloseAccount(loanAccountId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Attempt rollback
+                    savingsRepo.UpdateBalance(savingsAccount.SBAccountID, currentBalance);
+                    throw new Exception($"Payment failed: {ex.Message}", ex);
+                }
+
+                string message;
+                if (newOutstanding == 0)
+                {
+                    message = $"Congratulations! Loan fully paid. Amount: Rs. {paymentAmount:N2}. Loan account closed.";
+                }
+                else
+                {
+                    message = $"Payment successful! Amount: Rs. {paymentAmount:N2}. Remaining balance: Rs. {newOutstanding:N2}";
+                }
+
+                return Success(message, loanAccountId, newOutstanding);
+            }
+            catch (Exception ex)
+            {
+                return Error($"Payment failed: {ex.Message}");
+            }
         }
 
         private AccountOperationResult Error(string message) => new AccountOperationResult { IsSuccess = false, Message = message };

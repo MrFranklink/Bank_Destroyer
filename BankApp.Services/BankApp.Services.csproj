@@ -59,6 +59,7 @@
     <Compile Include="CustomerService.cs" />
     <Compile Include="EmployeeService.cs" />
     <Compile Include="FixedDepositAccountService.cs" />
+    <Compile Include="FundTransferService.cs" />
     <Compile Include="LoanAccountService.cs" />
     <Compile Include="ManagerService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,106 +3,243 @@
     Layout = "~/Views/Shared/Template.cshtml";
 }
 
-<div class="container">
-    <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
-        <div class="col-md-5">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white text-center py-4">
-                    <h3 class="mb-0">
-                        <i class="bi bi-bank2"></i> Banking System
-                    </h3>
-                    <p class="mb-0 mt-2">Sign in to your account</p>
-                </div>
-                <div class="card-body p-4">
-                    @if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill"></i> @ViewBag.Error
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    }
+@section styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-                    <form method="post" action="@Url.Action("Login", "Auth")">
-                        <div class="mb-4">
-                            <label for="Username" class="form-label fw-bold">
-                                <i class="bi bi-person-fill"></i> Username
-                            </label>
-                            <input id="Username"
-                                   name="id"
-                                   class="form-control form-control-lg"
-                                   placeholder="Enter your username"
-                                   required
-                                   autofocus />
-                        </div>
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 15px;
+        }
 
-                        <div class="mb-4">
-                            <label for="Password" class="form-label fw-bold">
-                                <i class="bi bi-lock-fill"></i> Password
-                            </label>
-                            <input id="Password"
-                                   name="password"
-                                   class="form-control form-control-lg"
-                                   type="password"
-                                   placeholder="Enter your password"
-                                   required />
-                        </div>
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.5s ease;
+        }
 
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="rememberMe">
-                            <label class="form-check-label" for="rememberMe">
-                                Remember me
-                            </label>
-                        </div>
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                            <i class="bi bi-box-arrow-in-right"></i> Sign In
-                        </button>
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-                        <div class="text-center">
-                            <a href="#" class="text-decoration-none">Forgot Password?</a>
-                        </div>
-                    </form>
-                </div>
-                @*<div class="card-footer text-center py-3 bg-light">
-                    <small class="text-muted">
-                        Don't have an account?
-                        <a href="@Url.Action("Register", "Auth")" class="fw-bold text-decoration-none">Register here</a>
-                    </small>
-                </div>*@
+        .login-header i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .login-header h3 {
+            color: #212529;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .form-floating label {
+            color: #6c757d;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            padding: 1rem;
+            height: auto;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #6c757d;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.85rem;
+        }
+
+        .test-credentials {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .test-credentials strong {
+            color: #495057;
+        }
+
+        .test-credentials code {
+            background-color: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+    </style>
+}
+
+<div class="login-container">
+    <div class="login-card">
+        <!-- Header -->
+        <div class="login-header">
+            <i class="bi bi-bank2"></i>
+            <h3>Banking System</h3>
+            <p>Welcome back! Please login to your account</p>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Success!</strong> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Error!</strong> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <!-- Login Form -->
+        <form method="post" action="@Url.Action("Login", "Auth")">
+            <div class="form-floating mb-3">
+                <input type="text" 
+                       class="form-control" 
+                       id="username" 
+                       name="username" 
+                       placeholder="Username"
+                       required 
+                       autofocus>
+                <label for="username"><i class="bi bi-person me-2"></i>Username</label>
             </div>
 
-            
+            <div class="form-floating mb-3">
+                <input type="password" 
+                       class="form-control" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Password"
+                       required>
+                <label for="password"><i class="bi bi-lock me-2"></i>Password</label>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                </button>
+            </div>
+        </form>
+
+        <!-- Test Credentials Info -->
+        <!--<div class="divider">
+            <span>Test Credentials</span>
         </div>
+
+        <div class="test-credentials">
+            <div class="mb-2">
+                <strong><i class="bi bi-shield-check text-danger"></i> Manager:</strong><br>
+                <small>Username: <code>admin</code> | Password: <code>Dummy</code></small>
+            </div>
+            <div class="mb-2">
+                <strong><i class="bi bi-person-badge text-primary"></i> Employee:</strong><br>
+                <small>Username: <code>employee1234</code> | Password: <code>Dummy</code></small>
+            </div>
+            <div>
+                <strong><i class="bi bi-person-circle text-success"></i> Customer:</strong><br>
+                <small>Username: <code>john1234</code> | Password: <code>Dummy</code></small>
+            </div>
+        </div>
+    </div>-->
+
+    <!-- Footer -->
+    <div class="login-footer">
+        <p class="mb-0">
+            <i class="bi bi-shield-lock me-1"></i>
+            Secure Banking System © 2025
+        </p>
+        <small>All rights reserved</small>
     </div>
 </div>
 
-<style>
-    body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .card {
-        border: none;
-        border-radius: 15px;
-    }
-
-    .card-header {
-        border-radius: 15px 15px 0 0 !important;
-    }
-
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border: none;
-        transition: transform 0.2s;
-    }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-</style>
+@section scripts {
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}

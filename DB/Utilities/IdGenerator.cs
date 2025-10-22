@@ -241,25 +241,41 @@ namespace DB.Utilities
         }
 
         /// <summary>
-        /// Validate PAN format: 4 characters + 4 digits (e.g., ABCD1234)
+        /// Validate PAN format: 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F)
+        /// Real Indian PAN format:
+        /// - First 3 chars: Alphabetic series (AAA to ZZZ)
+        /// - 4th char: Status code (P=Person, C=Company, H=HUF, F=Firm, etc.)
+        /// - 5th char: First letter of surname/name
+        /// - 6th-9th chars: 4 sequential digits (0000-9999)
+        /// - 10th char: Alphabetic check digit
         /// </summary>
         public static bool ValidatePanFormat(string pan)
         {
-            if (string.IsNullOrWhiteSpace(pan) || pan.Length != 8)
+            if (string.IsNullOrWhiteSpace(pan) || pan.Length != 10)
             {
                 return false;
             }
 
-            // First 4 should be letters
-            string letters = pan.Substring(0, 4);
-            if (!letters.All(char.IsLetter))
+            // Convert to uppercase for validation
+            pan = pan.ToUpper();
+
+            // First 5 should be letters
+            string firstFive = pan.Substring(0, 5);
+            if (!firstFive.All(char.IsLetter))
             {
                 return false;
             }
 
-            // Last 4 should be digits
-            string digits = pan.Substring(4, 4);
-            if (!digits.All(char.IsDigit))
+            // Next 4 should be digits (6th to 9th position)
+            string fourDigits = pan.Substring(5, 4);
+            if (!fourDigits.All(char.IsDigit))
+            {
+                return false;
+            }
+
+            // Last character (10th) should be a letter
+            char lastChar = pan[9];
+            if (!char.IsLetter(lastChar))
             {
                 return false;
             }

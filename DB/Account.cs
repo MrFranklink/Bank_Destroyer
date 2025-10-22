@@ -25,7 +25,7 @@ namespace DB
     
         public virtual Customer Customer { get; set; }
         public virtual FixedDepositAccount FixedDepositAccount { get; set; }
-        public virtual LoanAccount LoanAccount { get; set; }
         public virtual SavingsAccount SavingsAccount { get; set; }
+        public virtual LoanAccount LoanAccount { get; set; }
     }
 }

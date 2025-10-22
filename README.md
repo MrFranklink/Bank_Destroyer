@@ -1,4 +1,4 @@
-# ?? Banking Application - ASP.NET MVC
+﻿# ?? Banking Application - ASP.NET MVC
 
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.8-blue.svg)](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-6.0-green.svg)](https://docs.microsoft.com/en-us/ef/)
@@ -110,12 +110,12 @@ This Banking Application is a **full-featured web-based banking management syste
 - ? Real-time balance updates
 
 ### ?? Validation Rules
-- ? **PAN Validation:** 4 letters + 4 digits (e.g., ABCD1234)
-- ? **PAN Uniqueness:** Cross-table check (Customer, Employee, Manager)
-- ? **Age Validation:** Minimum 18 years
-- ? **Senior Citizen:** Age > 60 years
-- ? **EMI Validation:** EMI ? 60% of salary
-- ? **Account Limits:** One savings account per customer
+- ✅ **PAN Validation:** 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F) - Real Indian PAN format
+- ✅ **PAN Uniqueness:** Cross-table check (Customer, Employee, Manager)
+- ✅ **Age Validation:** Minimum 18 years
+- ✅ **Senior Citizen:** Age > 60 years
+- ✅ **EMI Validation:** EMI ≤ 60% of salary
+- ✅ **Account Limits:** One savings account per customer
 
 ### ?? Modern UI/UX
 - ? **Role-Specific Gradients:**
@@ -211,7 +211,7 @@ ReferenceID VARCHAR(20) NULL -- MGR001, 2600001, MLA00001
 ```sql
 Custid VARCHAR(20) PRIMARY KEY -- MLA00001
 Custname VARCHAR(50) NOT NULL
-Pan VARCHAR(8) UNIQUE NOT NULL -- ABCD1234
+Pan VARCHAR(10) UNIQUE NOT NULL -- ABCDE1234F (Real Indian PAN format)
 DOB DATE NULL
 PhoneNumber VARCHAR(15) NULL
 Address VARCHAR(100) NULL
@@ -222,7 +222,7 @@ Address VARCHAR(100) NULL
 Empid VARCHAR(20) PRIMARY KEY -- 2600001
 EmployeeName VARCHAR(50) NOT NULL
 DeptId VARCHAR(10) NOT NULL -- DEPT01, DEPT02, DEPT03
-Pan VARCHAR(8) UNIQUE NOT NULL
+Pan VARCHAR(10) UNIQUE NOT NULL -- ABCDE1234F
 ```
 
 #### Account (Base Table)

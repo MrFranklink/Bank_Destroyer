@@ -263,5 +263,13 @@ namespace DB
                 return 0;
             }
         }
+
+        /// <summary>
+        /// Alias for RecordTransaction - for backward compatibility
+        /// </summary>
+        public bool CreateTransaction(string sbAccountId, string transactionType, decimal amount)
+        {
+            return RecordTransaction(sbAccountId, transactionType, amount);
+        }
     }
 }

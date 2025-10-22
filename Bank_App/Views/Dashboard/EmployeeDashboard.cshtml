@@ -1,698 +1,628 @@
-@using BankApp.Services
+﻿@using BankApp.Services
 @{
     ViewBag.Title = "Employee Dashboard";
     Layout = "~/Views/Shared/Template.cshtml";
-    string deptId = ViewBag.DeptId ?? "UNKNOWN";
-    bool isDept01 = deptId == "DEPT01";
-    bool isDept02 = deptId == "DEPT02";
 }
 
-<style>
-    :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        --danger-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        --dept01-gradient: linear-gradient(135deg, #667eea 0%, #00c9ff 100%);
-        --dept02-gradient: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
-    }
-
-    body {
-        background: @(isDept01 ? "linear-gradient(135deg, #667eea 0%, #00c9ff 100%)" : "linear-gradient(135deg, #f857a6 0%, #ff5858 100%)");
-        min-height: 100vh;
-    }
-
-    .dashboard-header {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-        border-radius: 15px;
-        padding: 2rem;
-        color: white;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        border: none;
-        height: 100%;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-    }
-
-    .stat-icon {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        margin: 0 auto 1rem;
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-    }
-
-    .nav-tabs {
-        border: none;
-        background: white;
-        border-radius: 15px 15px 0 0;
-        padding: 1rem 1rem 0;
-    }
-
-    .nav-tabs .nav-link {
-        border: none;
-        color: #6c757d;
-        font-weight: 600;
-        padding: 1rem 1.5rem;
-        border-radius: 10px 10px 0 0;
-        transition: all 0.3s ease;
-    }
-
-    .nav-tabs .nav-link:hover {
-        background: #f8f9fa;
-        color: @(isDept01 ? "#667eea" : "#f857a6");
-    }
-
-    .nav-tabs .nav-link.active {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-        color: white;
-    }
-
-    .tab-content {
-        background: white;
-        border-radius: 0 0 15px 15px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    }
-
-    .nav-pills .nav-link {
-        border-radius: 10px;
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .nav-pills .nav-link:hover {
-        background: #f8f9fa;
-    }
-
-    .nav-pills .nav-link.active {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-    }
-
-    .form-control, .form-select {
-        border-radius: 10px;
-        border: 2px solid #e9ecef;
-        padding: 0.75rem 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus, .form-select:focus {
-        border-color: @(isDept01 ? "#667eea" : "#f857a6");
-        box-shadow: 0 0 0 0.2rem @(isDept01 ? "rgba(102, 126, 234, 0.25)" : "rgba(248, 87, 166, 0.25)");
-    }
-
-    .btn {
-        border-radius: 10px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .btn-primary {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-    }
-
-    .btn-success {
-        background: var(--success-gradient);
-    }
-
-    .btn-danger {
-        background: var(--danger-gradient);
-    }
-
-    .btn-info {
-        background: var(--info-gradient);
-    }
-
-    .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 7px 20px rgba(0,0,0,0.2);
-    }
-
-    .alert {
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-
-    .alert-info {
-        background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-        color: #006064;
-    }
-
-    .table {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-
-    .table thead {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-        color: white;
-    }
-
-    .table-hover tbody tr:hover {
-        background: #f8f9fa;
-        cursor: pointer;
-        transform: scale(1.01);
-        transition: all 0.2s ease;
-    }
-
-    .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 10px;
-        font-weight: 600;
-    }
-
-    code {
-        background: @(isDept01 ? "var(--dept01-gradient)" : "var(--dept02-gradient)");
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-
-    .credentials-box {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-    }
-
-    @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
+@section styles {
+    <style>
+        /* Top Navbar */
+        .navbar-custom {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.5rem;
         }
-    }
 
-    .animate-in {
-        animation: fadeInUp 0.6s ease;
-    }
+        .navbar-custom .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
 
-    .dept-badge {
-        display: inline-block;
-        padding: 0.5rem 1.5rem;
-        border-radius: 25px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-    }
-</style>
+        .navbar-custom .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
 
-<div class="container mt-5 animate-in">
-    <!-- Header -->
-    <div class="dashboard-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h2 class="mb-2"><i class="bi bi-person-badge"></i> Employee Dashboard</h2>
-                <p class="mb-0 opacity-75">Welcome back, @ViewBag.UserName!</p>
-            </div>
-            <div class="text-end">
-                <p class="mb-1"><strong>Employee ID:</strong> @ViewBag.ReferenceID</p>
-                <p class="mb-1"><strong>User ID:</strong> @ViewBag.UserID</p>
-                @if (isDept01)
-                {
-                    <span class="dept-badge"><i class="bi bi-bank2"></i> Deposit Management (DEPT01)</span>
-                }
-                else if (isDept02)
-                {
-                    <span class="dept-badge"><i class="bi bi-credit-card"></i> Loan Management (DEPT02)</span>
-                }
-                else
-                {
-                    <span class="dept-badge"><i class="bi bi-question-circle"></i> @deptId</span>
-                }
-                <div class="mt-2">
-                    <a href="@Url.Action("ChangePassword", "Dashboard")" class="btn btn-warning btn-sm me-2">
-                        <i class="bi bi-key"></i> Change Password
+        .user-dropdown {
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            color: white;
+            border: none;
+        }
+
+        .user-dropdown:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-section h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-right: 1rem;
+        }
+
+        .stat-card.customers .stat-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stat-card.accounts .stat-icon {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stat-card.transactions .stat-icon {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+            color: #2c3e50;
+        }
+
+        .stat-content p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        /* Tab Navigation */
+        .nav-pills {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-pills .nav-link {
+            border-radius: 10px;
+            color: #6c757d;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-card h4 {
+            margin: 0 0 1.5rem 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%);
+            color: white;
+        }
+
+        .modern-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        .modern-table tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .modern-table td {
+            padding: 1rem;
+            border: none;
+        }
+
+        /* Badges */
+        .badge-custom {
+            padding: 0.35rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-secondary {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<!-- Top Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="bi bi-bank2 me-2"></i>Banking System
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle user-dropdown" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-2"></i>@ViewBag.UserName
                     </a>
-                </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="@Url.Action("ChangePassword", "Dashboard")"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Auth")"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero-section" style="margin-top: 56px;">
+    <div class="container">
+        <h1>Welcome back, Employee @ViewBag.UserName! 👋</h1>
+        <p>Employee Dashboard - @ViewBag.DeptId</p>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container pb-5">
+    <!-- Alerts removed - now using Toast notifications from Template.cshtml -->
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card customers">
+            <div class="stat-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-content">
+                <h3>@(ViewBag.CustomerCount ?? 0)</h3>
+                <p>Total Customers</p>
+            </div>
+        </div>
+
+        <div class="stat-card accounts">
+            <div class="stat-icon">
+                <i class="bi bi-credit-card-fill"></i>
+            </div>
+            <div class="stat-content">
+                <h3>@(ViewBag.AccountCount ?? 0)</h3>
+                <p>Active Accounts</p>
+            </div>
+        </div>
+
+        <div class="stat-card transactions">
+            <div class="stat-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="stat-content">
+                <h3>@(ViewBag.TransactionCount ?? 0)</h3>
+                <p>Transactions Today</p>
             </div>
         </div>
     </div>
 
-    <!-- Alerts -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show animate-in" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <strong>Success!</strong> @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["ShowCredentials"] != null && TempData["ShowCredentials"].ToString() == "True")
-    {
-        <div class="credentials-box animate-in">
-            <h5 class="text-primary mb-3">
-                <i class="bi bi-key-fill"></i> @TempData["CredentialsTitle"]
-            </h5>
-            <div class="row">
-                <div class="col-md-4">
-                    <strong>ID:</strong> <code>@TempData["CredentialsId"]</code>
-                </div>
-                <div class="col-md-4">
-                    <strong>Username:</strong> <code>@TempData["CredentialsUsername"]</code>
-                </div>
-                <div class="col-md-4">
-                    <strong>Password:</strong> <code>@TempData["CredentialsPassword"]</code>
-                </div>
-            </div>
-            <small class="text-muted mt-2 d-block">
-                <i class="bi bi-exclamation-triangle"></i> Please save these credentials securely!
-            </small>
-        </div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show animate-in" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <strong>Error!</strong> @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <!-- Statistics Card -->
-    <div class="row mb-4 g-4">
-        <div class="col-md-12">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="bi bi-people text-white"></i>
-                </div>
-                <h3 class="text-center mb-2">@(ViewBag.CustomerCount ?? 0)</h3>
-                <p class="text-center text-muted mb-0">Total Customers</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Tabs -->
-    <ul class="nav nav-tabs" id="employeeTabs" role="tablist">
+    <!-- Tab Navigation -->
+    <ul class="nav nav-pills" id="employeeTabs" role="tablist">
         <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#register-customer">
-                <i class="bi bi-person-plus"></i> Register Customer
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#open-accounts" type="button">
+                <i class="bi bi-credit-card me-1"></i>Open Accounts
             </button>
         </li>
-        
-        @if (isDept01)
-        {
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#open-savings">
-                    <i class="bi bi-piggy-bank"></i> Open Savings
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#open-fd">
-                    <i class="bi bi-cash-stack"></i> Open FD
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#process-deposit">
-                    <i class="bi bi-arrow-down-circle"></i> Process Deposit
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#manage-accounts">
-                    <i class="bi bi-folder-open"></i> Manage Accounts
-                </button>
-            </li>
-        }
-        
-        @if (isDept02)
-        {
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#open-loan">
-                    <i class="bi bi-credit-card"></i> Open Loan
-                </button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#manage-loans">
-                    <i class="bi bi-folder-open"></i> Manage Loans
-                </button>
-            </li>
-        }
-        
         <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#customer-list">
-                <i class="bi bi-list-ul"></i> Customer List
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#transactions" type="button">
+                <i class="bi bi-arrow-left-right me-1"></i>Transactions
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-accounts" type="button">
+                <i class="bi bi-list-ul me-1"></i>View Accounts
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#view-customers" type="button">
+                <i class="bi bi-people me-1"></i>View Customers
             </button>
         </li>
     </ul>
 
+    <!-- Tab Content -->
     <div class="tab-content">
-        <!-- REGISTER CUSTOMER TAB (Both Departments) -->
-        <div class="tab-pane fade show active" id="register-customer">
-            <h5 class="mb-4"><i class="bi bi-person-plus-fill text-primary"></i> Register New Customer</h5>
-            <div class="alert alert-info mb-4">
-                <i class="bi bi-info-circle"></i> Customer ID and login credentials will be auto-generated
-            </div>
-            <form method="post" action="@Url.Action("RegisterCustomer", "Dashboard")">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-person"></i> Customer Name *</label>
-                        <input name="custName" class="form-control" placeholder="Enter full name" maxlength="50" required />
+        <!-- Open Accounts Tab -->
+        <div class="tab-pane fade show active" id="open-accounts">
+            <div class="content-card">
+                <h4><i class="bi bi-credit-card me-2"></i>Open New Account</h4>
+                
+                <ul class="nav nav-pills mb-3">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#savings">Savings</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#fd">Fixed Deposit</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#loan">Loan</button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <!-- Savings -->
+                    <div class="tab-pane fade show active" id="savings">
+                        <form method="post" action="@Url.Action("OpenSavingsAccount", "Dashboard")">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="customerId" type="text" class="form-control" placeholder="Customer ID" pattern="MLA[0-9]{5}" maxlength="8" style="text-transform: uppercase;" required>
+                                        <label>Customer ID (MLA00001)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="initialDeposit" type="number" class="form-control" placeholder="Amount" step="0.01" min="1000" required>
+                                        <label>Initial Deposit (Min ₹1,000)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Open Savings Account
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-calendar"></i> Date of Birth *</label>
-                        <input name="dob" type="date" class="form-control" required />
-                        <small class="text-muted">Must be 18+ years old</small>
+
+                    <!-- Fixed Deposit -->
+                    <div class="tab-pane fade" id="fd">
+                        <form method="post" action="@Url.Action("OpenFixedDepositAccount", "Dashboard")">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="customerId" type="text" class="form-control" placeholder="Customer ID" pattern="MLA[0-9]{5}" maxlength="8" style="text-transform: uppercase;" required>
+                                        <label>Customer ID (MLA00001)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="amount" type="number" class="form-control" placeholder="Amount" step="0.01" min="10000" required>
+                                        <label>Amount (Min ₹10,000)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="startDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                                        <label>Start Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="tenureMonths" type="number" class="form-control" placeholder="Months" min="1" max="360" required>
+                                        <label>Tenure (Months)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Open Fixed Deposit
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-card-text"></i> PAN Number *</label>
-                        <input name="pan" class="form-control" placeholder="e.g., ABCD1234" maxlength="8" pattern="[A-Za-z]{4}[0-9]{4}" required />
-                        <small class="text-muted">Format: 4 letters + 4 digits</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="bi bi-telephone"></i> Phone Number</label>
-                        <input name="phone" class="form-control" placeholder="Enter phone number" maxlength="15" />
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
-                        <textarea name="address" class="form-control" placeholder="Enter address" maxlength="100" rows="2"></textarea>
+
+                    <!-- Loan -->
+                    <div class="tab-pane fade" id="loan">
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Loan Eligibility:</strong> Based on monthly salary, you can borrow 30-60 times your salary. EMI should not exceed 60% of salary.
+                        </div>
+
+                        <!-- Loan Eligibility Calculator -->
+                        <div id="loanEligibilityCard" class="alert alert-success" style="display:none;">
+                            <h6 class="mb-2"><i class="bi bi-calculator me-2"></i>Loan Eligibility</h6>
+                            <p class="mb-1"><strong>Eligible Loan Range:</strong> <span id="loanRange">-</span></p>
+                            <p class="mb-1"><strong>Interest Rate:</strong> <span id="interestRate">-</span></p>
+                            <p class="mb-0"><strong>Max EMI (60% of salary):</strong> <span id="maxEmi">-</span></p>
+                        </div>
+
+                        <div id="loanValidationMessage" class="alert" style="display:none;"></div>
+
+                        <form method="post" action="@Url.Action("OpenLoanAccount", "Dashboard")" id="loanForm">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="customerId" type="text" class="form-control" placeholder="Customer ID" pattern="MLA[0-9]{5}" maxlength="8" style="text-transform: uppercase;" required>
+                                        <label>Customer ID (MLA00001)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="monthlySalary" id="monthlySalary" type="number" class="form-control" placeholder="Salary" step="0.01" min="1000" required>
+                                        <label>Monthly Salary (Min ₹1,000)</label>
+                                    </div>
+                                    <small class="text-muted">Enter salary first to see loan eligibility</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="loanAmount" id="loanAmount" type="number" class="form-control" placeholder="Amount" step="0.01" min="10000" required>
+                                        <label>Loan Amount (Min ₹10,000)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="tenureMonths" id="tenureMonths" type="number" class="form-control" placeholder="Months" min="1" max="360" required>
+                                        <label>Tenure (Months)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="startDate" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                                        <label>Start Date</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" id="estimatedEmi" class="form-control" placeholder="Estimated EMI" readonly>
+                                        <label>Estimated EMI (₹)</label>
+                                    </div>
+                                    <small class="text-muted">Auto-calculated based on amount & tenure</small>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" id="loanSubmitBtn" class="btn btn-primary btn-lg" disabled>
+                                    <i class="bi bi-check-circle me-2"></i>Sanction Loan
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success mt-4">
-                    <i class="bi bi-check-circle"></i> Register Customer
-                </button>
-            </form>
+            </div>
         </div>
 
-        @if (isDept01)
-        {
-            <!-- OPEN SAVINGS ACCOUNT TAB (DEPT01 Only) -->
-            <div class="tab-pane fade" id="open-savings">
-                <h5 class="mb-4"><i class="bi bi-piggy-bank text-primary"></i> Open Savings Account</h5>
-                <div class="alert alert-info">
-                    <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
-                    <ul class="mb-0 mt-2">
-                        <li>Minimum deposit: Rs. 1,000</li>
-                        <li>One account per customer</li>
-                        <li>Account ID auto-generated</li>
-                    </ul>
-                </div>
-                <form method="post" action="@Url.Action("OpenSavingsAccount", "Dashboard")">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Customer ID *</label>
-                            <input name="customerId" class="form-control" placeholder="e.g., MLA00001" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Initial Deposit (Rs.) *</label>
-                            <input name="initialDeposit" type="number" step="0.01" min="1000" class="form-control" required />
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">
-                        <i class="bi bi-check-circle"></i> Open Savings Account
-                    </button>
-                </form>
-            </div>
+        <!-- Transactions Tab -->
+        <div class="tab-pane fade" id="transactions">
+            <div class="content-card">
+                <h4><i class="bi bi-arrow-left-right me-2"></i>Process Transactions</h4>
+                
+                <ul class="nav nav-pills mb-3">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#deposit">Deposit</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#withdraw">Withdraw</button>
+                    </li>
+                </ul>
 
-            <!-- OPEN FIXED DEPOSIT TAB (DEPT01 Only) -->
-            <div class="tab-pane fade" id="open-fd">
-                <h5 class="mb-4"><i class="bi bi-cash-stack text-primary"></i> Open Fixed Deposit Account</h5>
-                <div class="alert alert-info">
-                    <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
-                    <ul class="mb-0 mt-2">
-                        <li>Minimum: Rs. 10,000</li>
-                        <li>Interest: 6% (<1yr), 7% (1-2yr), 8% (>2yr)</li>
-                        <li>Senior citizens: +0.5% bonus</li>
-                    </ul>
-                </div>
-                <form method="post" action="@Url.Action("OpenFixedDepositAccount", "Dashboard")">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Customer ID *</label>
-                            <input name="customerId" class="form-control" placeholder="e.g., MLA00001" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Amount (Rs.) *</label>
-                            <input name="amount" type="number" step="0.01" min="10000" class="form-control" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Start Date *</label>
-                            <input name="startDate" type="date" class="form-control" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Tenure (Months) *</label>
-                            <input name="tenureMonths" type="number" min="1" class="form-control" required />
-                        </div>
+                <div class="tab-content">
+                    <!-- Deposit -->
+                    <div class="tab-pane fade show active" id="deposit">
+                        <form method="post" action="@Url.Action("Deposit", "Dashboard")">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="accountId" type="text" class="form-control" placeholder="Account ID" required>
+                                        <label>Savings Account ID (SB00001)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="amount" type="number" class="form-control" placeholder="Amount" step="0.01" min="100" required>
+                                        <label>Deposit Amount (Min ₹100)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Process Deposit
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">
-                        <i class="bi bi-check-circle"></i> Open Fixed Deposit
-                    </button>
-                </form>
-            </div>
 
-            <!-- PROCESS DEPOSIT TAB (DEPT01 Only) -->
-            <div class="tab-pane fade" id="process-deposit">
-                <h5 class="mb-4"><i class="bi bi-arrow-down-circle text-primary"></i> Process Deposit</h5>
-                <div class="alert alert-info">
-                    <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
-                    <ul class="mb-0 mt-2">
-                        <li>Minimum deposit: Rs. 100</li>
-                        <li>Only for Savings Accounts</li>
-                        <li>Transaction is recorded instantly</li>
-                    </ul>
-                </div>
-                <form method="post" action="@Url.Action("Deposit", "Dashboard")">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Savings Account ID *</label>
-                            <input name="accountId" class="form-control" placeholder="e.g., SB00001" required />
-                            <small class="text-muted">Enter Savings Account ID</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Deposit Amount (Rs.) *</label>
-                            <input name="amount" type="number" step="0.01" min="100" class="form-control" placeholder="Minimum Rs. 100" required />
-                        </div>
+                    <!-- Withdraw -->
+                    <div class="tab-pane fade" id="withdraw">
+                        <form method="post" action="@Url.Action("Withdraw", "Dashboard")">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="accountId" type="text" class="form-control" placeholder="Account ID" required>
+                                        <label>Savings Account ID (SB00001)</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input name="amount" type="number" class="form-control" placeholder="Amount" step="0.01" min="100" required>
+                                        <label>Withdrawal Amount (Min ₹100)</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-danger btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Process Withdrawal
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-success mt-3">
-                        <i class="bi bi-check-circle"></i> Process Deposit
-                    </button>
-                </form>
+                </div>
             </div>
+        </div>
 
-            <!-- MANAGE ACCOUNTS TAB (DEPT01 Only) -->
-            <div class="tab-pane fade" id="manage-accounts">
-                <h5 class="mb-4"><i class="bi bi-folder-open text-primary"></i> Manage Savings & FD Accounts</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
+        <!-- View Accounts Tab -->
+        <div class="tab-pane fade" id="view-accounts">
+            <div class="content-card">
+                <h4><i class="bi bi-list-ul me-2"></i>All Accounts</h4>
+                
+                @if (ViewBag.Accounts != null && ((List<AccountDTO>)ViewBag.Accounts).Count > 0)
+                {
+                    <table class="modern-table">
                         <thead>
                             <tr>
                                 <th>Account ID</th>
                                 <th>Type</th>
                                 <th>Customer</th>
-                                <th>Opened By</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (ViewBag.Accounts != null && ((List<AccountDTO>)ViewBag.Accounts).Count > 0)
+                            @foreach (var account in (List<AccountDTO>)ViewBag.Accounts)
                             {
-                                foreach (var account in ((List<AccountDTO>)ViewBag.Accounts).Where(a => a.AccountType == "SAVING" || a.AccountType == "FIXED-DEPOSIT"))
-                                {
-                                    <tr>
-                                        <td><strong>@account.AccountID</strong></td>
-                                        <td>
-                                            @if (account.AccountType == "SAVING")
-                                            {
-                                                <span class="badge bg-success">Savings</span>
-                                            }
-                                            else if (account.AccountType == "FIXED-DEPOSIT")
-                                            {
-                                                <span class="badge bg-info">FD</span>
-                                            }
-                                        </td>
-                                        <td>@account.CustomerID</td>
-                                        <td>@account.OpenedBy</td>
-                                        <td>@account.OpenDate.ToString("dd/MM/yyyy")</td>
-                                        <td>
-                                            @if (account.Status == "OPEN")
-                                            {
-                                                <span class="badge bg-success">Open</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">Closed</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (account.Status == "OPEN")
-                                            {
-                                                <form method="post" action="@Url.Action("CloseAccount", "Dashboard")" style="display:inline;">
-                                                    <input type="hidden" name="accountId" value="@account.AccountID" />
-                                                    <input type="hidden" name="accountType" value="@account.AccountType" />
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Close this account?');">
-                                                        <i class="bi bi-x-circle"></i> Close
-                                                    </button>
-                                                </form>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr><td colspan="7" class="text-center text-muted">No accounts found</td></tr>
+                                <tr>
+                                    <td><strong>@account.AccountID</strong></td>
+                                    <td>
+                                        @if (account.AccountType == "SAVING")
+                                        {
+                                            <span class="badge-custom badge-success">Savings</span>
+                                        }
+                                        else if (account.AccountType == "FIXED-DEPOSIT")
+                                        {
+                                            <span class="badge-custom badge-info">FD</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-custom badge-warning">Loan</span>
+                                        }
+                                    </td>
+                                    <td>@account.CustomerID</td>
+                                    <td>@account.OpenDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (account.Status == "OPEN")
+                                        {
+                                            <span class="badge-custom badge-success">@account.Status</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-custom badge-secondary">@account.Status</span>
+                                        }
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
-                </div>
+                }
+                else
+                {
+                    <p class="text-muted">No accounts found</p>
+                }
             </div>
-        }
+        </div>
 
-        @if (isDept02)
-        {
-            <!-- OPEN LOAN ACCOUNT TAB (DEPT02 Only) -->
-            <div class="tab-pane fade" id="open-loan">
-                <h5 class="mb-4"><i class="bi bi-credit-card text-primary"></i> Open Loan Account</h5>
-                <div class="alert alert-info">
-                    <strong><i class="bi bi-info-circle"></i> Business Rules:</strong>
-                    <ul class="mb-0 mt-2">
-                        <li>Minimum: Rs. 10,000</li>
-                        <li>Interest: 10% (<5L), 9.5% (5-10L), 9% (>10L)</li>
-                        <li>EMI ? 60% of salary</li>
-                        <li>Senior: max Rs. 1L, 9.5%</li>
-                    </ul>
-                </div>
-                <form method="post" action="@Url.Action("OpenLoanAccount", "Dashboard")">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Customer ID *</label>
-                            <input name="customerId" class="form-control" placeholder="e.g., MLA00001" required />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Loan Amount (Rs.) *</label>
-                            <input name="loanAmount" type="number" step="0.01" min="10000" class="form-control" required />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Start Date *</label>
-                            <input name="startDate" type="date" class="form-control" required />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Tenure (Months) *</label>
-                            <input name="tenureMonths" type="number" min="1" class="form-control" required />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Monthly Salary (Rs.) *</label>
-                            <input name="monthlySalary" type="number" step="0.01" min="1" class="form-control" required />
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">
-                        <i class="bi bi-check-circle"></i> Sanction Loan
-                    </button>
-                </form>
-            </div>
-
-            <!-- MANAGE LOANS TAB (DEPT02 Only) -->
-            <div class="tab-pane fade" id="manage-loans">
-                <h5 class="mb-4"><i class="bi bi-folder-open text-primary"></i> Manage Loan Accounts</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
+        <!-- View Customers Tab -->
+        <div class="tab-pane fade" id="view-customers">
+            <div class="content-card">
+                <h4><i class="bi bi-people me-2"></i>All Customers</h4>
+                
+                @if (ViewBag.Customers != null && ((List<CustomerDTO>)ViewBag.Customers).Count > 0)
+                {
+                    <table class="modern-table">
                         <thead>
                             <tr>
-                                <th>Account ID</th>
-                                <th>Type</th>
-                                <th>Customer</th>
-                                <th>Opened By</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>PAN</th>
+                                <th>Phone</th>
+                                <th>DOB</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (ViewBag.Accounts != null && ((List<AccountDTO>)ViewBag.Accounts).Count > 0)
-                            {
-                                foreach (var account in ((List<AccountDTO>)ViewBag.Accounts).Where(a => a.AccountType == "LOAN"))
-                                {
-                                    <tr>
-                                        <td><strong>@account.AccountID</strong></td>
-                                        <td>
-                                            <span class="badge bg-warning">Loan</span>
-                                        </td>
-                                        <td>@account.CustomerID</td>
-                                        <td>@account.OpenedBy</td>
-                                        <td>@account.OpenDate.ToString("dd/MM/yyyy")</td>
-                                        <td>
-                                            @if (account.Status == "OPEN")
-                                            {
-                                                <span class="badge bg-success">Open</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">Closed</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (account.Status == "OPEN")
-                                            {
-                                                <form method="post" action="@Url.Action("CloseAccount", "Dashboard")" style="display:inline;">
-                                                    <input type="hidden" name="accountId" value="@account.AccountID" />
-                                                    <input type="hidden" name="accountType" value="@account.AccountType" />
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Close this loan account?');">
-                                                        <i class="bi bi-x-circle"></i> Close
-                                                    </button>
-                                                </form>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr><td colspan="7" class="text-center text-muted">No loan accounts found</td></tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-
-        <!-- CUSTOMER LIST TAB (Both Departments) -->
-        <div class="tab-pane fade" id="customer-list">
-            <h5 class="mb-4"><i class="bi bi-list-ul text-primary"></i> Customer List</h5>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>PAN</th>
-                            <th>Phone</th>
-                            <th>DOB</th>
-                            <th>Address</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (ViewBag.Customers != null && ((List<CustomerDTO>)ViewBag.Customers).Count > 0)
-                        {
-                            foreach (var customer in (List<CustomerDTO>)ViewBag.Customers)
+                            @foreach (var customer in (List<CustomerDTO>)ViewBag.Customers)
                             {
                                 <tr>
                                     <td><strong>@customer.Custid</strong></td>
@@ -700,40 +630,279 @@
                                     <td>@customer.Pan</td>
                                     <td>@customer.PhoneNumber</td>
                                     <td>@(customer.DOB?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                                    <td>@customer.Address</td>
                                 </tr>
                             }
-                        }
-                        else
-                        {
-                            <tr><td colspan="6" class="text-center text-muted">No customers found</td></tr>
-                        }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted">No customers found</p>
+                }
             </div>
         </div>
     </div>
-
-    <!-- Logout Button -->
-    <div class="mt-5 text-center">
-        <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger btn-lg">
-            <i class="bi bi-box-arrow-right"></i> Logout
-        </a>
-    </div>
 </div>
 
-<script>
-    // Add animation to stat cards on load
-    document.addEventListener('DOMContentLoaded', function() {
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.animation = `fadeInUp 0.6s ease ${index * 0.1}s both`;
-            }, 100);
+@section scripts {
+    <script>
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Form IDs for persistence
+        const FORM_IDS = {
+            openSavings: 'openSavingsForm',
+            openFD: 'openFDForm',
+            openLoan: 'openLoanForm',
+            deposit: 'depositForm',
+            withdraw: 'withdrawForm'
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Open Savings Account Form
+            const savingsForm = document.querySelector('form[action*="OpenSavingsAccount"]');
+            if (savingsForm) {
+                savingsForm.id = FORM_IDS.openSavings;
+                restoreFormData(FORM_IDS.openSavings);
+                
+                savingsForm.addEventListener('submit', function() {
+                    saveFormData(FORM_IDS.openSavings);
+                });
+                
+                // Auto-uppercase Customer ID
+                const custIdInput = savingsForm.querySelector('input[name="customerId"]');
+                if (custIdInput) {
+                    custIdInput.addEventListener('input', function(e) {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+            }
+
+            // Open FD Form
+            const fdForm = document.querySelector('form[action*="OpenFixedDepositAccount"]');
+            if (fdForm) {
+                fdForm.id = FORM_IDS.openFD;
+                restoreFormData(FORM_IDS.openFD);
+                
+                fdForm.addEventListener('submit', function() {
+                    saveFormData(FORM_IDS.openFD);
+                });
+                
+                const custIdInput = fdForm.querySelector('input[name="customerId"]');
+                if (custIdInput) {
+                    custIdInput.addEventListener('input', function(e) {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+            }
+
+            // Open Loan Form
+            const loanForm = document.querySelector('form[action*="OpenLoanAccount"]');
+            if (loanForm) {
+                loanForm.id = FORM_IDS.openLoan;
+                restoreFormData(FORM_IDS.openLoan);
+                
+                loanForm.addEventListener('submit', function() {
+                    saveFormData(FORM_IDS.openLoan);
+                });
+                
+                const custIdInput = loanForm.querySelector('input[name="customerId"]');
+                if (custIdInput) {
+                    custIdInput.addEventListener('input', function(e) {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+            }
+
+            // Deposit Form
+            const depositForm = document.querySelector('form[action*="Deposit"]');
+            if (depositForm) {
+                depositForm.id = FORM_IDS.deposit;
+                restoreFormData(FORM_IDS.deposit);
+                
+                depositForm.addEventListener('submit', function() {
+                    saveFormData(FORM_IDS.deposit);
+                });
+                
+                const accountIdInput = depositForm.querySelector('input[name="accountId"]');
+                if (accountIdInput) {
+                    accountIdInput.addEventListener('input', function(e) {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+            }
+
+            // Withdraw Form
+            const withdrawForm = document.querySelector('form[action*="Withdraw"]');
+            if (withdrawForm) {
+                withdrawForm.id = FORM_IDS.withdraw;
+                restoreFormData(FORM_IDS.withdraw);
+                
+                withdrawForm.addEventListener('submit', function() {
+                    saveFormData(FORM_IDS.withdraw);
+                });
+                
+                const accountIdInput = withdrawForm.querySelector('input[name="accountId"]');
+                if (accountIdInput) {
+                    accountIdInput.addEventListener('input', function(e) {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+            }
+
+            // Clear form data on success
+            const successMessage = '@(TempData["SuccessMessage"] ?? "")';
+            if (successMessage) {
+                Object.values(FORM_IDS).forEach(formId => {
+                    clearFormData(formId);
+                    
+                    // Also reset the actual form element
+                    const form = document.getElementById(formId);
+                    if (form) {
+                        form.reset();
+                    }
+                });
+            }
+
+            // Setup Loan Eligibility Calculator
+            setupLoanEligibilityCalculator();
         });
 
-        console.log('%c?? EMPLOYEE DASHBOARD LOADED', 'background: #667eea; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
-        console.log('Department:', '@deptId');
-        console.log('Employee ID:', '@ViewBag.ReferenceID');
-    });
-</script>
+        // Loan Eligibility Calculator
+        function setupLoanEligibilityCalculator() {
+            const salaryInput = document.getElementById('monthlySalary');
+            const loanAmountInput = document.getElementById('loanAmount');
+            const tenureInput = document.getElementById('tenureMonths');
+            const emiInput = document.getElementById('estimatedEmi');
+            const submitBtn = document.getElementById('loanSubmitBtn');
+
+            if (!salaryInput || !loanAmountInput) return;
+
+            let eligibility = null;
+
+            salaryInput.addEventListener('input', function() {
+                const salary = parseFloat(this.value);
+                
+                if (salary >= 1000) {
+                    eligibility = calculateLoanEligibility(salary);
+                    displayLoanEligibility(eligibility);
+                    validateLoanAmount();
+                } else {
+                    document.getElementById('loanEligibilityCard').style.display = 'none';
+                    document.getElementById('loanValidationMessage').style.display = 'none';
+                    submitBtn.disabled = true;
+                }
+            });
+
+            loanAmountInput.addEventListener('input', validateLoanAmount);
+            
+            // Recalculate and validate when tenure changes
+            tenureInput.addEventListener('input', function() {
+                calculateEMI();
+                validateLoanAmount(); // Re-validate after EMI recalculation
+            });
+
+            function calculateLoanEligibility(salary) {
+                const minLoan = salary * 30;
+                const maxLoan = salary * 60;
+                const maxEmi = salary * 0.6;
+                
+                let interestRate = 10;
+                if (maxLoan >= 1000000) {
+                    interestRate = 9;
+                } else if (maxLoan >= 500000) {
+                    interestRate = 9.5;
+                }
+
+                return {
+                    minLoan: minLoan,
+                    maxLoan: maxLoan,
+                    maxEmi: maxEmi,
+                    interestRate: interestRate,
+                    salary: salary
+                };
+            }
+
+            function displayLoanEligibility(elig) {
+                const card = document.getElementById('loanEligibilityCard');
+                const rangeSpan = document.getElementById('loanRange');
+                const rateSpan = document.getElementById('interestRate');
+                const emiSpan = document.getElementById('maxEmi');
+
+                rangeSpan.textContent = `₹${formatCurrency(elig.minLoan)} to ₹${formatCurrency(elig.maxLoan)}`;
+                rateSpan.textContent = `${elig.interestRate}% per annum`;
+                emiSpan.textContent = `₹${formatCurrency(elig.maxEmi)}/month`;
+
+                card.style.display = 'block';
+            }
+
+            function validateLoanAmount() {
+                const loanAmount = parseFloat(loanAmountInput.value);
+                const msgDiv = document.getElementById('loanValidationMessage');
+
+                if (!eligibility || !loanAmount) {
+                    msgDiv.style.display = 'none';
+                    submitBtn.disabled = true;
+                    return;
+                }
+
+                if (loanAmount < eligibility.minLoan) {
+                    msgDiv.className = 'alert alert-warning';
+                    msgDiv.innerHTML = `<i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Low Amount:</strong> Minimum recommended: ₹${formatCurrency(eligibility.minLoan)}`;
+                    msgDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                } else if (loanAmount > eligibility.maxLoan) {
+                    msgDiv.className = 'alert alert-danger';
+                    msgDiv.innerHTML = `<i class="bi bi-x-circle me-2"></i>
+                        <strong>Exceeds Eligibility:</strong> Maximum: ₹${formatCurrency(eligibility.maxLoan)}`;
+                    msgDiv.style.display = 'block';
+                    submitBtn.disabled = true;
+                } else {
+                    msgDiv.className = 'alert alert-success';
+                    msgDiv.innerHTML = `<i class="bi bi-check-circle me-2"></i>
+                        <strong>Eligible!</strong> Loan ₹${formatCurrency(loanAmount)} is within range.`;
+                    msgDiv.style.display = 'block';
+                    submitBtn.disabled = false;
+                    calculateEMI();
+                }
+            }
+
+            function calculateEMI() {
+                const loanAmount = parseFloat(loanAmountInput.value);
+                const tenure = parseInt(tenureInput.value);
+
+                if (!eligibility || !loanAmount || !tenure) {
+                    emiInput.value = '';
+                    return;
+                }
+
+                const monthlyRate = (eligibility.interestRate / 12) / 100;
+                const emi = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, tenure)) / 
+                            (Math.pow(1 + monthlyRate, tenure) - 1);
+
+                emiInput.value = formatCurrency(emi);
+
+                if (emi > eligibility.maxEmi) {
+                    const msgDiv = document.getElementById('loanValidationMessage');
+                    msgDiv.className = 'alert alert-danger';
+                    msgDiv.innerHTML = `<i class="bi bi-x-circle me-2"></i>
+                        <strong>EMI Too High:</strong> ₹${formatCurrency(emi)} exceeds max ₹${formatCurrency(eligibility.maxEmi)}`;
+                    submitBtn.disabled = true;
+                }
+            }
+
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('en-IN', {
+                    maximumFractionDigits: 0
+                }).format(amount);
+            }
+        }
+    </script>
+}

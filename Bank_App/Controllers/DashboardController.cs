@@ -18,6 +18,7 @@ namespace Bank_App.Controllers
         private readonly AccountManagementService _accountService;
         private readonly ManagerService _managerService;
         private readonly AuthService _authService;
+        private readonly FundTransferService _fundTransferService;
 
         public DashboardController()
         {
@@ -30,6 +31,7 @@ namespace Bank_App.Controllers
             _accountService = new AccountManagementService();
             _managerService = new ManagerService();
             _authService = new AuthService();
+            _fundTransferService = new FundTransferService();
         }
 
         // GET: Dashboard/Index
@@ -175,12 +177,22 @@ namespace Bank_App.Controllers
             // Check if user is manager
             if (Session["Role"]?.ToString().ToUpper() != "MANAGER")
             {
-                return RedirectToAction("Login", "Auth");
+                TempData["ErrorMessage"] = "Access denied. Only Managers can register Employees.";
+                return RedirectToAction("Index");
             }
 
             try
             {
-                var result = _employeeService.RegisterEmployee(empName, deptId, pan);
+                // Get logged-in Manager's ReferenceID (Manager ID)
+                string loggedInManagerId = Session["ReferenceID"]?.ToString();
+                string loggedInManagerPan = null;
+
+                // Get Manager's PAN for self-registration check
+                // Note: Currently Manager table doesn't track PAN like Employee/Customer
+                // If needed, add PAN column to Manager table
+                // For now, we skip self-check for Manager since they shouldn't register themselves
+                
+                var result = _employeeService.RegisterEmployee(empName, deptId, pan, loggedInManagerPan);
 
                 if (result.IsSuccess)
                 {
@@ -766,16 +778,17 @@ namespace Bank_App.Controllers
         [HttpPost]
         public ActionResult ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)
         {
-            // Check if user is logged in
-            if (Session["UserID"] == null)
+            // Get current user details from session
+            string userId = Session["UserID"]?.ToString();
+
+            if (string.IsNullOrWhiteSpace(userId))
             {
+                TempData["ErrorMessage"] = "Session expired. Please login again.";
                 return RedirectToAction("Login", "Auth");
             }
 
             try
             {
-                string userId = Session["UserID"].ToString();
-                
                 var result = _authService.ChangePassword(userId, oldPassword, newPassword, confirmNewPassword);
 
                 if (result.IsSuccess)
@@ -793,6 +806,74 @@ namespace Bank_App.Controllers
             }
 
             return RedirectToAction("ChangePassword");
+        }
+
+        // POST: Dashboard/TransferFunds
+        [HttpPost]
+        public ActionResult TransferFunds(string toAccountId, decimal amount, string remarks)
+        {
+            // Check if user is customer
+            if (Session["Role"]?.ToString().ToUpper() != "CUSTOMER")
+            {
+                TempData["ErrorMessage"] = "Only customers can transfer funds";
+                return RedirectToAction("Index");
+            }
+
+            string customerId = Session["ReferenceID"]?.ToString();
+
+            try
+            {
+                var result = _fundTransferService.TransferFunds(customerId, toAccountId, amount, remarks);
+
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Transfer failed: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        // POST: Dashboard/PayLoanEMI
+        [HttpPost]
+        public ActionResult PayLoanEMI(string loanAccountId, decimal paymentAmount, string paymentType)
+        {
+            // Check if user is customer
+            if (Session["Role"]?.ToString().ToUpper() != "CUSTOMER")
+            {
+                TempData["ErrorMessage"] = "Only customers can pay loan EMI";
+                return RedirectToAction("Index");
+            }
+
+            string customerId = Session["ReferenceID"]?.ToString();
+
+            try
+            {
+                var result = _loanService.PayEMI(loanAccountId, customerId, paymentAmount, paymentType);
+
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Payment failed: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }

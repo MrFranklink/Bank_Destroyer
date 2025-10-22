@@ -14,11 +14,13 @@ namespace DB
     
     public partial class LoanTransaction
     {
-        public int Transacitonno { get; set; }
-        public string Ln_account_id { get; set; }
+        public int Transactionno { get; set; }
+        public string Ln_accountid { get; set; }
         public Nullable<System.DateTime> Emidate { get; set; }
         public Nullable<decimal> Amount { get; set; }
-        public Nullable<int> Outstanding { get; set; }
+        public Nullable<decimal> Outstanding { get; set; }
+        public string PaymentType { get; set; }
+        public string PaidBy { get; set; }
     
         public virtual LoanAccount LoanAccount { get; set; }
     }

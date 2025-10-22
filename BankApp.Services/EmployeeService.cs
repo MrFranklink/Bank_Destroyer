@@ -21,17 +21,43 @@ namespace BankApp.Services
 
         /// <summary>
         /// Register a new employee with auto-generated ID and UserLogin
+        /// Validates that employee cannot be a customer (PAN check)
         /// </summary>
-        public OperationResult RegisterEmployee(string empName, string deptId, string pan)
+        public OperationResult RegisterEmployee(string empName, string deptId, string pan, string loggedInUserPan = null)
         {
+            // Clean and normalize inputs
+            empName = empName?.Trim();
+            deptId = deptId?.Trim().ToUpper();
+            pan = pan?.ToUpper().Trim();
+            loggedInUserPan = loggedInUserPan?.ToUpper().Trim();
+
             var validationRules = new List<Func<OperationResult>>
             {
+                // Employee Name validations
                 () => string.IsNullOrWhiteSpace(empName) ? Error("Employee Name is required") : null,
+                () => empName.Length < 3 ? Error("Employee Name must be at least 3 characters long") : null,
+                () => empName.Length > 50 ? Error("Employee Name cannot exceed 50 characters") : null,
+                () => !System.Text.RegularExpressions.Regex.IsMatch(empName, @"^[a-zA-Z\s.]+$") 
+                    ? Error("Employee Name can only contain letters, spaces, and dots (.)") : null,
+                
+                // Department validations
                 () => string.IsNullOrWhiteSpace(deptId) ? Error("Department ID is required") : null,
+                () => !new[] { "DEPT01", "DEPT02", "DEPT03" }.Contains(deptId) 
+                    ? Error("Department ID must be DEPT01, DEPT02, or DEPT03") : null,
+                
+                // PAN validations
                 () => string.IsNullOrWhiteSpace(pan) ? Error("PAN is required") : null,
-                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be 4 letters followed by 4 digits (e.g., ABCD1234)") : null,
-                () => _employeeRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered with another employee.") : null,
-                () => _customerRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered as a customer. Same person cannot be both customer and employee.") : null
+                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be in format: 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F)") : null,
+                
+                // Self-registration check (if logged-in user PAN is provided)
+                () => !string.IsNullOrWhiteSpace(loggedInUserPan) && pan == loggedInUserPan 
+                    ? Error("You cannot register yourself as an Employee. Please contact your Manager.") : null,
+                
+                // Check PAN uniqueness in Employee table
+                () => _employeeRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered with another Employee. Each PAN can only be used once.") : null,
+                
+                // Check if PAN exists in Customer table (prevent dual roles)
+                () => _customerRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered as a Customer. Same person cannot be both Employee and Customer.") : null
             };
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
@@ -39,7 +65,7 @@ namespace BankApp.Services
 
             try
             {
-                // Auto-generate Employee ID (starts with 26)
+                // Auto-generate Employee ID
                 string empId = IdGenerator.GenerateEmployeeId();
 
                 // Create employee
@@ -47,7 +73,7 @@ namespace BankApp.Services
                 
                 if (!employeeCreated)
                 {
-                    return Error("Failed to register employee. Please try again.");
+                    return Error("Failed to register employee. Employee ID may already exist. Please try again.");
                 }
 
                 // Auto-generate username from first name
@@ -64,14 +90,21 @@ namespace BankApp.Services
                 if (!loginCreated)
                 {
                     // Rollback: Delete the employee if login creation failed
+                    // Note: In production, use transactions
                     return Error("Employee created but login failed. Please contact administrator.");
                 }
 
-                return Success($"Employee registered successfully! Employee ID: {empId}, Username: {username}, Password: {defaultPassword}", empId, username, defaultPassword);
+                return Success($"Employee registered successfully! Employee ID: {empId}, Username: {username}, Password: {defaultPassword}, Department: {deptId}", empId, username, defaultPassword);
             }
             catch (Exception ex)
             {
-                return Error($"Registration failed: {ex.Message}");
+                // Return detailed error message
+                string errorMsg = ex.Message;
+                if (ex.InnerException != null)
+                {
+                    errorMsg += " | Details: " + ex.InnerException.Message;
+                }
+                return Error($"Registration failed: {errorMsg}");
             }
         }
 

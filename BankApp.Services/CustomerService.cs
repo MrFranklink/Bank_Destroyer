@@ -24,17 +24,42 @@ namespace BankApp.Services
         /// </summary>
         public OperationResult RegisterCustomer(string custName, DateTime dob, string pan, string address, string phoneNumber)
         {
+            // Clean and normalize inputs
+            custName = custName?.Trim();
+            pan = pan?.ToUpper().Trim();
+            phoneNumber = phoneNumber?.Trim();
+            address = address?.Trim();
+
             var validationRules = new List<Func<OperationResult>>
             {
+                // Customer Name validations
                 () => string.IsNullOrWhiteSpace(custName) ? Error("Customer Name is required") : null,
+                () => custName.Length < 3 ? Error("Customer Name must be at least 3 characters long") : null,
+                () => custName.Length > 50 ? Error("Customer Name cannot exceed 50 characters") : null,
+                () => !System.Text.RegularExpressions.Regex.IsMatch(custName, @"^[a-zA-Z\s.]+$") 
+                    ? Error("Customer Name can only contain letters, spaces, and dots (.)") : null,
+                
+                // PAN validations
                 () => string.IsNullOrWhiteSpace(pan) ? Error("PAN is required") : null,
-                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be 4 letters followed by 4 digits (e.g., ABCD1234)") : null,
+                () => !IdGenerator.ValidatePanFormat(pan) ? Error("PAN must be in format: 5 letters + 4 digits + 1 letter (e.g., ABCDE1234F)") : null,
                 () => _customerRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered with another customer. Each PAN can only be used once.") : null,
                 () => _employeeRepo.PanExists(pan) ? Error($"PAN number '{pan}' is already registered as an employee. Same person cannot be both customer and employee.") : null,
-                () => dob > DateTime.Now.AddYears(-18) ? Error("Customer must be at least 18 years old") : null
+                
+                // Phone Number validations
+                () => string.IsNullOrWhiteSpace(phoneNumber) ? Error("Phone Number is required") : null,
+                () => !System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^[6-9][0-9]{9}$") 
+                    ? Error("Phone Number must be a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g., 9876543210)") : null,
+                
+                // Address validations
+                () => string.IsNullOrWhiteSpace(address) ? Error("Address is required") : null,
+                () => address.Length < 10 ? Error("Address must be at least 10 characters long") : null,
+                () => address.Length > 100 ? Error("Address cannot exceed 100 characters") : null,
+                
+                // Date of Birth validations
+                () => dob > DateTime.Now ? Error("Date of Birth cannot be in the future") : null,
+                () => dob > DateTime.Now.AddYears(-18) ? Error("Customer must be at least 18 years old") : null,
+                () => dob < DateTime.Now.AddYears(-100) ? Error("Please enter a valid Date of Birth (age cannot exceed 100 years)") : null
             };
-
-            //Later Correct The Pan Details Validation
 
             var validationError = validationRules.Select(rule => rule()).FirstOrDefault(result => result != null);
             if (validationError != null) return validationError;
